@@ -9,41 +9,47 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tasktracker.model.User;
 import com.tasktracker.repository.UserRepository;
+import com.tasktracker.security.JwtUtil;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private UserRepository repo;
+	  @Autowired
+	    private UserRepository repo;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+	    @Autowired
+	    private PasswordEncoder passwordEncoder;
 
-    // Signup API
-    @PostMapping("/signup")
-    public User signup(@RequestBody User user) {
+	    @Autowired
+	    private JwtUtil jwtUtil;
 
-        // Encrypt password before saving
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+	    // Signup
+	    @PostMapping("/signup")
+	    public User signup(@RequestBody User user) {
 
-        return repo.save(user);
-    }
+	        String encodedPassword = passwordEncoder.encode(user.getPassword());
+	        user.setPassword(encodedPassword);
 
-    // Login API
-    @PostMapping("/login")
-    public String login(@RequestBody User user) {
+	        return repo.save(user);
+	    }
 
-        User dbUser = repo.findByEmail(user.getEmail()).orElse(null);
+	    // Login
+	    @PostMapping("/login")
+	    public String login(@RequestBody User user) {
 
-        if (dbUser != null && passwordEncoder.matches(user.getPassword(), dbUser.getPassword())) {
-            return "Login Success";
-        }
+	        User dbUser = repo.findByEmail(user.getEmail()).orElse(null);
 
-        return "Invalid Credentials";
-    }
-} 
+	        if (dbUser != null && passwordEncoder.matches(user.getPassword(), dbUser.getPassword())) {
+
+	            String token = jwtUtil.generateToken(user.getEmail());
+
+	            return token;
+	        }
+
+	        return "Invalid Credentials";
+	    }
+	}
 	
 
     
