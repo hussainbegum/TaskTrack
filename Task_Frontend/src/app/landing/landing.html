@@ -1,0 +1,401 @@
+<!-- Task Tracker Landing Page Component -->
+<div class="landing-wrapper">
+  
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <i class="fas fa-tasks"></i>
+        </div>
+        <h2>Task<span class="gradient-text">Tracker</span></h2>
+      </div>
+      <div class="nav-menu" [class.active]="isMenuOpen">
+        <ul>
+          <li><a href="javascript:void(0)" (click)="scrollToSection('home')">Home</a></li>
+          <li><a href="javascript:void(0)" (click)="scrollToSection('features')">Features</a></li>
+          <li><a href="javascript:void(0)" (click)="scrollToSection('how-it-works')">How It Works</a></li>
+          <li><a href="javascript:void(0)" (click)="scrollToSection('pricing')">Pricing</a></li>
+          <li><a href="javascript:void(0)" (click)="scrollToSection('testimonials')">Testimonials</a></li>
+        </ul>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn-login" (click)="onLogin()">Login</button>
+        <button class="btn-signup" (click)="onSignup()">Sign Up Free</button>
+      </div>
+      <div class="hamburger" (click)="toggleMenu()">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </nav>
+
+<!-- Hero Section -->
+    <section id="home" class="hero-section">
+      <div class="container">
+        <div class="hero-content">
+          <h1 class="hero-title">Stay Organized with <span class="gradient-text">TaskTracker</span></h1>
+          <p class="hero-description">
+            The ultimate task management solution that helps you organize, prioritize, and complete your tasks efficiently. 
+            Boost productivity and never miss a deadline again.
+          </p>
+          <div class="hero-buttons">
+            <button class="btn-primary" (click)="onTryFree()">Start Free Trial →</button>
+            <button class="btn-secondary" (click)="onWatchDemo()">Watch Demo</button>
+          </div>
+          <div class="hero-stats">
+            <div class="stat">
+              <h3>10K+</h3>
+              <p>Active Users</p>
+            </div>
+            <div class="stat">
+              <h3>50K+</h3>
+              <p>Tasks Completed</p>
+            </div>
+            <div class="stat">
+              <h3>99%</h3>
+              <p>Satisfaction Rate</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-image">
+          <img 
+            src="assets/landing/hero.png" 
+            alt="Task Tracker Dashboard"
+            (load)="imageLoaded = true"
+            class="hero-img"
+          >
+        </div>
+      </div>
+    </section>
+
+  <!-- Task Management Section -->
+  <section class="task-management-section">
+    <div class="container">
+      <div class="content-wrapper">
+        <div class="text-content">
+          <h2>Smart <span class="gradient-text">Task Management</span></h2>
+          <p>
+            Create tasks with detailed descriptions, set due dates, assign priorities, and add subtasks. 
+            Organize tasks into projects and categories for better workflow management.
+          </p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Priority levels: High, Medium, Low</li>
+            <li><i class="fas fa-check-circle"></i> Due dates and reminders</li>
+            <li><i class="fas fa-check-circle"></i> Task dependencies and subtasks</li>
+            <li><i class="fas fa-check-circle"></i> File attachments and comments</li>
+          </ul>
+          <button class="btn-primary" (click)="onGetStarted()">Start Managing →</button>
+        </div>
+        <div class="image-content">
+          <img 
+            src="assets/landing/smart.png" 
+            alt="Task Tracker Dashboard"
+            (load)="imageLoaded = true"
+            class="smart"
+          >
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Collaboration Section -->
+  <section class="collaboration-section">
+    <div class="container">
+      <div class="content-wrapper reverse">
+        <div class="text-content">
+          <h2>Team <span class="gradient-text">Collaboration</span></h2>
+          <p>
+            Work together seamlessly with your team members. Share tasks, assign responsibilities, 
+            and track progress in real-time. Perfect for remote teams and organizations.
+          </p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Real-time updates</li>
+            <li><i class="fas fa-check-circle"></i> Team chat and comments</li>
+            <li><i class="fas fa-check-circle"></i> Role-based access control</li>
+            <li><i class="fas fa-check-circle"></i> Shared workspaces</li>
+          </ul>
+          <button class="btn-primary" (click)="onTryNow()">Collaborate Now →</button>
+        </div>
+        <div class="image-content">
+          <!-- IMAGE PLACEHOLDER - Add collaboration image here -->
+          <img 
+            src="assets/landing/team-collaboration.png" 
+            alt="Task Tracker Dashboard"
+            (load)="imageLoaded = true"
+            class="team-collaboration"
+          >
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Analytics Section -->
+  <section class="analytics-section">
+    <div class="container">
+      <div class="content-wrapper">
+        <div class="text-content">
+          <h2>Powerful <span class="gradient-text">Analytics</span></h2>
+          <p>
+            Get deep insights into your productivity with comprehensive analytics. 
+            Track completed tasks, time spent, and identify areas for improvement.
+          </p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Productivity reports</li>
+            <li><i class="fas fa-check-circle"></i> Time tracking analytics</li>
+            <li><i class="fas fa-check-circle"></i> Task completion rates</li>
+            <li><i class="fas fa-check-circle"></i> Custom dashboards</li>
+          </ul>
+          <button class="btn-primary" (click)="onLearnMore()">Learn More →</button>
+        </div>
+        <div class="image-content">
+          <img 
+            src="assets/landing/stats.png" 
+            alt="Task Tracker Dashboard"
+            (load)="imageLoaded = true"
+            class="power-image"
+          >
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mobile App Section -->
+  <section class="mobile-app-section">
+    <div class="container">
+      <div class="content-wrapper text-center">
+        <div class="text-content full-width">
+          <h2>Your Tasks, <span class="gradient-text">Everywhere You Go</span></h2>
+          <p>
+            Access your tasks from any device - web, mobile, or tablet. Sync across all platforms 
+            and never miss a task whether you're at home, office, or on the go.
+          </p>
+          <div class="app-buttons">
+            <button class="btn-app" (click)="onDownloadApp('ios')">
+              <i class="fab fa-apple"></i> App Store
+            </button>
+            <button class="btn-app" (click)="onDownloadApp('android')">
+              <i class="fab fa-android"></i> Google Play
+            </button>
+          </div>
+        </div>
+        <div class="image-content full-width">
+          <!-- IMAGE PLACEHOLDER - Add mobile app mockup here -->
+          <!-- <img src="assets/images/mobile-app.png" alt="Mobile App"> -->
+          <div class="image-content">
+          <img 
+            src="assets/landing/image.png" 
+            alt="Task Tracker Dashboard"
+            (load)="imageLoaded = true"
+            class="mobile-image"
+          >
+        </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="pricing-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Choose Your <span class="gradient-text">Plan</span></h2>
+        <p>Select the perfect plan for your needs. All plans include a 14-day free trial.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>Free</h3>
+          <div class="price">$0<span>/month</span></div>
+          <p class="plan-description">Perfect for getting started</p>
+          <ul>
+            <li><i class="fas fa-check"></i> Up to 50 tasks</li>
+            <li><i class="fas fa-check"></i> Basic task management</li>
+            <li><i class="fas fa-check"></i> 1 project</li>
+            <li><i class="fas fa-check"></i> Email support</li>
+            <li><i class="fas fa-times"></i> Team collaboration</li>
+            <li><i class="fas fa-times"></i> Advanced analytics</li>
+          </ul>
+          <button class="btn-secondary" (click)="onGetStarted()">Get Started</button>
+        </div>
+        <div class="pricing-card popular">
+          <div class="popular-badge">Most Popular</div>
+          <h3>Pro</h3>
+          <div class="price">$12<span>/month</span></div>
+          <p class="plan-description">Best for individuals and small teams</p>
+          <ul>
+            <li><i class="fas fa-check"></i> Unlimited tasks</li>
+            <li><i class="fas fa-check"></i> Advanced task management</li>
+            <li><i class="fas fa-check"></i> Unlimited projects</li>
+            <li><i class="fas fa-check"></i> Priority support</li>
+            <li><i class="fas fa-check"></i> Team collaboration</li>
+            <li><i class="fas fa-check"></i> Basic analytics</li>
+          </ul>
+          <button class="btn-primary" (click)="onTryNow()">Start Free Trial →</button>
+        </div>
+        <div class="pricing-card">
+          <h3>Business</h3>
+          <div class="price">$29<span>/month</span></div>
+          <p class="plan-description">For growing teams and organizations</p>
+          <ul>
+            <li><i class="fas fa-check"></i> Everything in Pro</li>
+            <li><i class="fas fa-check"></i> Advanced analytics</li>
+            <li><i class="fas fa-check"></i> API access</li>
+            <li><i class="fas fa-check"></i> Custom integrations</li>
+            <li><i class="fas fa-check"></i> Dedicated support</li>
+            <li><i class="fas fa-check"></i> Admin controls</li>
+          </ul>
+          <button class="btn-secondary" (click)="onContactUs()">Contact Sales</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section id="testimonials" class="testimonials-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>What Our <span class="gradient-text">Users Say</span></h2>
+        <p>Join thousands of satisfied users who have transformed their productivity</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+          <p class="testimonial-text">
+            "TaskTracker has completely changed how I manage my daily tasks. The interface is intuitive, 
+            and the analytics help me stay on track. Highly recommended!"
+          </p>
+          <div class="client-info">
+            <div class="avatar-placeholder">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <div>
+              <h4>Sarah Johnson</h4>
+              <p>Product Manager</p>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+          <p class="testimonial-text">
+            "Best task management tool I've ever used. Our team productivity increased by 40% 
+            since we started using TaskTracker. The collaboration features are outstanding!"
+          </p>
+          <div class="client-info">
+            <div class="avatar-placeholder">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <div>
+              <h4>Michael Chen</h4>
+              <p>Team Lead, TechStartup</p>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star-half-alt"></i>
+          </div>
+          <p class="testimonial-text">
+            "The mobile app is a game-changer! I can manage my tasks on the go, and the reminders 
+            ensure I never miss important deadlines. Worth every penny."
+          </p>
+          <div class="client-info">
+            <div class="avatar-placeholder">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <div>
+              <h4>Emily Rodriguez</h4>
+              <p>Freelance Designer</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Ready to Boost Your Productivity?</h2>
+        <p>Join thousands of users who are already managing their tasks more efficiently with TaskTracker.</p>
+        <button class="btn-primary-large" (click)="onSignup()">Start Your Free Trial →</button>
+        <p class="cta-note">No credit card required. Free for 14 days.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-column">
+          <div class="footer-brand">
+            <i class="fas fa-tasks"></i>
+            <h3>Task<span class="gradient-text">Tracker</span></h3>
+          </div>
+          <p>Stay organized, boost productivity, and achieve your goals with TaskTracker.</p>
+          <div class="social-links">
+            <i class="fab fa-twitter"></i>
+            <i class="fab fa-linkedin"></i>
+            <i class="fab fa-github"></i>
+            <i class="fab fa-facebook"></i>
+          </div>
+        </div>
+        <div class="footer-column">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="javascript:void(0)" (click)="scrollToSection('features')">Features</a></li>
+            <li><a href="javascript:void(0)" (click)="scrollToSection('pricing')">Pricing</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('demo')">Demo</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('integrations')">Integrations</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="javascript:void(0)" (click)="onNavigate('personal')">Personal</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('teams')">Teams</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('enterprise')">Enterprise</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('education')">Education</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="javascript:void(0)" (click)="onNavigate('blog')">Blog</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('help')">Help Center</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('tutorials')">Tutorials</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('api')">API Docs</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="javascript:void(0)" (click)="onNavigate('about')">About Us</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('careers')">Careers</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('contact')">Contact</a></li>
+            <li><a href="javascript:void(0)" (click)="onNavigate('privacy')">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 TaskTracker. All rights reserved. Made with <i class="fas fa-heart"></i> for productivity.</p>
+      </div>
+    </div>
+  </footer>
+</div>

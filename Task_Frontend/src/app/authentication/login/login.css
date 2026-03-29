@@ -1,0 +1,279 @@
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(-45deg, #e3eeff, #f3e7e9, #e3eeff);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.auth-card {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.auth-card:hover {
+  transform: translateY(-5px);
+}
+
+.brand-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: rgba(57, 73, 171, 1);
+  margin-bottom: 4px;
+}
+
+.welcome-text {
+  font-size: 16px;
+  color: #6c757d;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+.form-control {
+  border: 1.5px solid #edf2f7;
+  border-radius: 14px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background-color: #ffffff;
+}
+
+.form-floating > label {
+  color: #a0aec0;
+  font-size: 14px;
+  padding: 12px 16px;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+  color: #667eea;
+}
+
+.forgot-link {
+  color: #667eea;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.forgot-link:hover {
+  color: #5a67d8;
+  text-decoration: underline;
+}
+
+.btn-login {
+  background: rgba(57, 73, 171, 1);
+  border: none;
+  border-radius: 14px;
+  padding: 14px;
+  font-weight: 600;
+  font-size: 15px;
+  color: white;
+  box-shadow: 0 4px 15px rgba(57, 73, 171, 1);
+  transition: all 0.3s ease;
+}
+
+.btn-login:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 150px rgba(102, 126, 234, 0.3);
+  opacity: 0.95;
+}
+
+.btn-login:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.divider {
+  text-align: center;
+  position: relative;
+  font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: calc(50% - 30px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.divider span {
+  background: transparent;
+  padding: 0 15px;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.btn-social {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  padding: 12px;
+  border-radius: 14px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #334155;
+  transition: all 0.2s ease;
+}
+
+.btn-social:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.btn-social i {
+  font-size: 18px;
+}
+
+.btn-social i.fa-google {
+  color: #ea4335;
+}
+
+.btn-social i.fa-gitlab {
+  color: #fc6d26;
+}
+
+.welcome-message {
+  margin-top: 8px;
+  padding: 12px 0 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.greeting {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+  letter-spacing: -0.2px;
+}
+
+.action-hint {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 0;
+}
+
+.register-section {
+  font-size: 14px;
+  padding-top: 8px;
+}
+
+.register-link {
+  color: #0769e9;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.register-link:hover {
+  color:rgba(57, 73, 171, 1);
+  text-decoration: underline;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #fee2e2 0%, #ffe4e4 100%);
+  border-radius: 12px;
+  font-size: 12px;
+  color: #dc2626;
+}
+
+@media (max-width: 576px) {
+  .auth-card {
+    padding: 24px !important;
+  }
+  
+  .brand-title {
+    font-size: 24px;
+  }
+  
+  .projector-icon {
+    width: 65px;
+    height: 65px;
+  }
+  
+  .projector-icon i {
+    font-size: 32px;
+  }
+  
+  .welcome-text {
+    font-size: 14px;
+  }
+  
+  .greeting {
+    font-size: 14px;
+  }
+  
+  .action-hint {
+    font-size: 11px;
+  }
+}
+
+.auth-card {
+  animation: fadeInUp 0.6s ease backwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

@@ -1,0 +1,73 @@
+<!-- task-list.html -->
+<div class="task-list-container">
+  <div class="task-header">
+    <h2>📋 My Tasks</h2>
+    <div class="task-stats">
+      <span class="stat-badge">Total: {{ getTaskCount() }}</span>
+      <span class="stat-badge completed">Completed: {{ getCompletedCount() }}</span>
+      <span class="stat-badge in-progress">In Progress: {{ getInProgressCount() }}</span>
+      <span class="stat-badge pending">Pending: {{ getPendingCount() }}</span>
+    </div>
+  </div>
+
+  <div class="filter-buttons">
+    <button [class.active]="filter === 'all'" (click)="filter = 'all'">All Tasks</button>
+    <button [class.active]="filter === 'pending'" (click)="filter = 'pending'">Pending</button>
+    <button [class.active]="filter === 'in-progress'" (click)="filter = 'in-progress'">In Progress</button>
+    <button [class.active]="filter === 'completed'" (click)="filter = 'completed'">Completed</button>
+  </div>
+
+  <div *ngIf="loading" class="loading">Loading tasks</div>
+
+  <div *ngIf="!loading && filteredTasks.length === 0" class="empty-state">
+    <p>No tasks found. Create your first task!</p>
+  </div>
+
+  <div *ngIf="!loading && filteredTasks.length > 0" class="table-responsive">
+    <table class="tasks-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Created Date</th>
+          <th>Last Updated</th>
+          <th>Updates</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let task of filteredTasks">
+          <td class="task-title">{{ task.title }}</td>
+          <td>{{ task.description }}</td>
+          <td>
+            <span class="status-badge-table" [ngClass]="task.status">
+              {{ task.status | titlecase }}
+            </span>
+          </td>
+          <td class="task-date-cell">
+            <span>📅 {{ task.createdAt | date:'medium' }}</span>
+          </td>
+          <td class="task-date-cell">
+            <span>🔄 {{ task.updatedAt | date:'medium' }}</span>
+          </td>
+          <td class="task-actions-cell">
+            <select [value]="task.status" (change)="updateTaskStatus(task, $any($event.target).value)" class="status-select">
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </td>
+          <td class="task-delete-cell">
+            <button class="delete-btn-table" (click)="deleteTask(task.id)">
+              🗑️ Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="table-footer">
+      Showing {{ filteredTasks.length }} of {{ getTaskCount() }} tasks
+    </div>
+  </div>
+</div>

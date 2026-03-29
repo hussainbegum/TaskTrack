@@ -1,0 +1,53 @@
+<div class="admin-dashboard">
+  <div class="dashboard-header">
+    <h1>Admin Dashboard</h1>
+    <p>Welcome, {{ currentUser?.name }}! You have administrator privileges.</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ totalUsers }}</h3>
+        <p>Total Users</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-tasks"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ totalTasks }}</h3>
+        <p>Total Tasks</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ completedTasks }}</h3>
+        <p>Completed Tasks</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ pendingTasks }}</h3>
+        <p>Pending Tasks</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-actions">
+    <button class="btn-primary" routerLink="/admin/users">Manage Users</button>
+    <button class="btn-primary" routerLink="/admin/tasks">Manage Tasks</button>
+  </div>
+</div>

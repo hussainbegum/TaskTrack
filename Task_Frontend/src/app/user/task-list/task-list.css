@@ -1,0 +1,554 @@
+/* task-list.component.css */
+.task-list-container {
+  background: rgba(4, 56, 115, 1);
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Table Wrapper with Scroll */
+.table-responsive {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 500px;
+  margin-top: 1rem;
+  border: 1px solid white;
+  
+  /* Invisible scrollbar styles */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+/* WebKit browsers (Chrome, Safari, Edge) */
+.table-responsive::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 0;
+  transition: background 0.3s ease;
+}
+
+/* Show scrollbar only when hovering */
+.table-responsive:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* For Firefox */
+.table-responsive {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.table-responsive:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* Header Section */
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.task-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.task-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stat-badge {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transition: all 0.3s;
+}
+
+.stat-badge:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.stat-badge.completed {
+  background: rgba(16, 185, 129, 0.8);
+  color: white;
+}
+
+.stat-badge.in-progress {
+  background: rgba(245, 158, 11, 0.8);
+  color: white;
+}
+
+.stat-badge.pending {
+  background: rgba(239, 68, 68, 0.8);
+  color: white;
+}
+
+/* Filter Buttons */
+.filter-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 1rem;
+}
+
+.filter-buttons button {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.filter-buttons button:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.filter-buttons button.active {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+}
+
+.filter-buttons button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1rem;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: white;
+}
+
+/* Table Styles */
+.tasks-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* Important for equal column widths */
+}
+
+/* Equal column widths - each column gets equal width */
+.tasks-table th,
+.tasks-table td {
+  width: 16.66%; /* 100% / 6 columns = 16.66% */
+}
+
+.tasks-table thead {
+  background: rgba(2, 38, 78, 1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tasks-table th {
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  border: 1px solid white;
+  border-top: none;
+}
+
+.tasks-table td {
+  padding: 1rem;
+  border: 1px solid white;
+  vertical-align: middle;
+  color: white;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+/* Zigzag row colors - alternating colors */
+.tasks-table tbody tr:nth-child(odd) {
+  background: rgba(4, 56, 115, 1);
+}
+
+.tasks-table tbody tr:nth-child(even) {
+  background: rgba(2, 38, 78, 1);
+}
+
+.tasks-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.5);
+  transition: all 0.3s;
+}
+
+/* Task Title Cell */
+.task-title {
+  font-weight: 600;
+  color: white;
+  font-size: 15px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* Description Cell */
+.tasks-table td:nth-child(2) {
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* Status Badges in Table */
+.status-badge-table {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
+  white-space: nowrap;
+}
+
+.status-badge-table.pending {
+  background: rgba(239, 68, 68, 0.8);
+  color: white;
+}
+
+.status-badge-table.pending::before {
+  content: '⏰';
+  font-size: 12px;
+}
+
+.status-badge-table.in-progress {
+  background: rgba(245, 158, 11, 0.8);
+  color: white;
+}
+
+.status-badge-table.in-progress::before {
+  content: '⚡';
+  font-size: 12px;
+}
+
+.status-badge-table.completed {
+  background: rgba(16, 185, 129, 0.8);
+  color: white;
+}
+
+.status-badge-table.completed::before {
+  content: '✅';
+  font-size: 12px;
+}
+
+/* Date Cells */
+.task-date-cell {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+}
+
+.task-date-cell span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+/* Actions Cell */
+.task-actions-cell {
+  white-space: nowrap;
+}
+
+.status-select {
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  outline: none;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+
+.status-select:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: white;
+}
+
+.status-select:focus {
+  border-color: white;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.status-select option {
+  background: rgba(4, 56, 115, 1);
+  color: white;
+}
+
+.delete-btn-table {
+  padding: 6px 12px;
+  background: rgba(239, 68, 68, 0.8);
+  border: 1px solid rgba(239, 68, 68, 0.8);
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.delete-btn-table:hover {
+  background: rgba(239, 68, 68, 1);
+  border-color: white;
+  transform: translateY(-1px);
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: white;
+  font-size: 16px;
+}
+
+.loading::after {
+  content: '...';
+  animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(2, 38, 78, 1);
+  margin: 2rem 0;
+}
+
+.empty-state p {
+  font-size: 16px;
+  color: white;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state::before {
+  content: '📋';
+  font-size: 48px;
+  display: block;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+/* Table Footer */
+.table-footer {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .tasks-table th,
+  .tasks-table td {
+    width: 16.66%; /* Keep equal widths */
+  }
+  
+  .tasks-table th {
+    font-size: 12px;
+    padding: 0.75rem;
+  }
+  
+  .tasks-table td {
+    padding: 0.75rem;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .task-list-container {
+    padding: 1rem;
+  }
+  
+  .task-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .task-header h2 {
+    font-size: 20px;
+  }
+  
+  .task-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .stat-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .filter-buttons {
+    gap: 0.5rem;
+  }
+  
+  .filter-buttons button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .tasks-table {
+    font-size: 12px;
+  }
+  
+  .tasks-table th,
+  .tasks-table td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .status-select,
+  .delete-btn-table {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+  
+  .table-responsive {
+    max-height: 400px;
+  }
+  
+  .task-date-cell span {
+    font-size: 10px;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+  
+  .status-badge-table {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .tasks-table th,
+  .tasks-table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .tasks-table th {
+    font-size: 10px;
+  }
+  
+  .tasks-table td {
+    font-size: 10px;
+  }
+  
+  .status-badge-table {
+    padding: 3px 6px;
+    font-size: 8px;
+  }
+  
+  .status-select,
+  .delete-btn-table {
+    padding: 3px 6px;
+    font-size: 8px;
+    margin-right: 4px;
+  }
+  
+  .task-date-cell span {
+    font-size: 8px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .filter-buttons,
+  .task-actions-cell,
+  .task-stats,
+  .table-responsive {
+    overflow: visible;
+    max-height: none;
+  }
+  
+  .tasks-table {
+    border: 1px solid #ddd;
+    table-layout: auto;
+  }
+  
+  .tasks-table th,
+  .tasks-table td {
+    border: 1px solid #ddd;
+  }
+  
+  .task-list-container {
+    background: white;
+  }
+  
+  .task-header h2,
+  .tasks-table th,
+  .tasks-table td,
+  .task-title {
+    color: black;
+  }
+  
+  .tasks-table tbody tr:nth-child(odd) {
+    background: #f5f5f5;
+  }
+  
+  .tasks-table tbody tr:nth-child(even) {
+    background: white;
+  }
+}

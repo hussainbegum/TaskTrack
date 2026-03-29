@@ -1,0 +1,51 @@
+<div class="users-list-container">
+  <div class="header">
+    <h2>User Management</h2>
+    <button class="btn-primary" (click)="loadUsers()">
+      <i class="fas fa-sync-alt"></i> Refresh
+    </button>
+  </div>
+
+  <div class="table-responsive" *ngIf="!loading">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="role-badge" [class.admin]="user.role === 'ADMIN'" [class.user]="user.role === 'USER'">
+              {{ user.role }}
+            </span>
+          </td>
+          <td>{{ user.createdAt | date:'medium' }}</td>
+          <td class="actions">
+            <button class="btn-sm btn-admin" (click)="changeUserRole(user.id, 'ADMIN')">
+              Make Admin
+            </button>
+            <button class="btn-sm btn-user" (click)="changeUserRole(user.id, 'USER')">
+              Make User
+            </button>
+            <button class="btn-sm btn-danger" (click)="deleteUser(user.id)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading users...
+  </div>
+</div>

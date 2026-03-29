@@ -1,0 +1,103 @@
+<div class="taskform-container">
+  <div class="form-header">
+    <div class="header-icon">
+      <i class="material-icons">{{ isEditMode ? 'edit' : 'add_task' }}</i>
+    </div>
+    <div class="header-text">
+      <h3>{{ isEditMode ? 'Edit Task' : 'Create New Task' }}</h3>
+      <p>{{ isEditMode ? 'Update your task details' : 'Fill in the details to create a new task' }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading task details...</p>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="material-icons">error</i>
+    <span>{{ error }}</span>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="material-icons">check_circle</i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <i class="material-icons">warning</i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" *ngIf="!loading" class="task-form">
+    <div class="form-group">
+      <label for="title">
+        Title <span class="required">*</span>
+      </label>
+      <div class="input-wrapper">
+        <i class="material-icons input-icon">title</i>
+        <input
+          type="text"
+          id="title"
+          formControlName="title"
+          placeholder="Enter task title"
+          [class.error]="title?.invalid && title?.touched">
+      </div>
+      <div *ngIf="title?.invalid && title?.touched" class="error-message">
+        <span *ngIf="title?.errors?.['required']">Title is required</span>
+        <span *ngIf="title?.errors?.['minlength']">Title must be at least 3 characters</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">
+        Description <span class="required">*</span>
+      </label>
+      <div class="textarea-wrapper">
+        <i class="material-icons textarea-icon">description</i>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="4"
+          placeholder="Enter task description (minimum 10 characters)"></textarea>
+      </div>
+      <div *ngIf="description?.invalid && description?.touched" class="error-message">
+        <span *ngIf="description?.errors?.['required']">Description is required</span>
+        <span *ngIf="description?.errors?.['minlength']">Description must be at least 10 characters</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="status">
+        Status <span class="required">*</span>
+      </label>
+      <div class="select-wrapper">
+        <i class="material-icons select-icon">status</i>
+        <select id="status" formControlName="status">
+          <option value="pending">Pending</option>
+          <option value="in-progress">In Progress</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" [disabled]="submitting || taskForm.invalid">
+        <i class="material-icons">{{ isEditMode ? 'update' : 'add' }}</i>
+        <span>
+          {{ submitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Task' : 'Create Task') }}
+        </span>
+      </button>
+
+      <button type="button" class="btn-secondary" (click)="resetForm()">
+        <i class="material-icons">refresh</i>
+        <span>Reset</span>
+      </button>
+
+      <button type="button" class="btn-secondary" (click)="cancel()">
+        <i class="material-icons">close</i>
+        <span>Cancel</span>
+      </button>
+    </div>
+  </form>
+</div>
