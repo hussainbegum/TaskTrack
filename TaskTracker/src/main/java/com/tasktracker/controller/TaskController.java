@@ -18,7 +18,7 @@ import com.tasktracker.service.TaskService;
 
 @RestController
 @RequestMapping("/tasks")
-@CrossOrigin(origins = {"http://localhost:4200"}, allowCredentials = "true")
+@CrossOrigin(origins="http://localhost:4200")
 public class TaskController {
 	
 	
