@@ -67,4 +67,11 @@ export class LoginComponent {
       }
     });
   }
+  onForgotPassword(){
+    console.log("clicked forgotpass")
+  }
+
+  onRegistration(){
+    this.router.navigate(['/auth/register'])
+  }
 }

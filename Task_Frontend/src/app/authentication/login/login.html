@@ -6,12 +6,7 @@
         <div class="projector-icon mb-2">
           <i class="fas fa-chalkboard-user"></i>
         </div>
-        <h1 class="brand-title">Login To Task Manager</h1>
-      </div>
-
-      <!-- Error Message -->
-      <div *ngIf="errorMessage" class="alert alert-danger mb-3">
-        {{ errorMessage }}
+        <h1 class="brand-title">Login For Your Task Manager</h1>
       </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
@@ -42,15 +37,24 @@
           <div class="invalid-feedback ps-2">Password is required</div>
         </div>
 
+        <div class="d-flex justify-content-end mb-3">
+          <a href="javascript:void(0)" class="forgot-link" (click)="onForgotPassword()">Forgot password?</a>
+        </div>
+
         <button type="submit" class="btn btn-login w-100 mb-2" [disabled]="loading || loginForm.invalid">
           <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
           {{ loading ? 'Signing in...' : 'Login' }}
         </button>
       </form>
 
+      <div class="welcome-message text-center mb-3">
+        <p class="greeting">Welcome aboard my friend</p>
+        <p class="action-hint">just a couple of clicks and we start</p>
+      </div>
+
       <div class="text-center mt-2">
-        <span class="text-muted small">Don't have an account?</span>
-        <a routerLink="/auth/register" class="register-link ms-1">Register</a>
+        <span class="text-muted small">Have no account yet?</span>
+        <a routerLink="/auth/register" class="register-link ms-1" (click)="onRegistration()">Registration</a>
       </div>
       
     </div>
