@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth';
 
 interface User {
   id: string;
@@ -110,6 +111,10 @@ export class AdminDashboardComponent implements OnInit {
     priority: 'medium',
     dueDate: undefined
   };
+
+  constructor(
+    private authService: AuthService
+  ) {}
   
   ngOnInit(): void {
     this.loadCurrentAdmin();
@@ -604,8 +609,8 @@ export class AdminDashboardComponent implements OnInit {
   // Logout
   logout(): void {
     if (confirm('Are you sure you want to logout?')) {
-      // In a real app, clear auth token and redirect
       console.log('Logging out...');
     }
+    this.authService.logout();
   }
 }
