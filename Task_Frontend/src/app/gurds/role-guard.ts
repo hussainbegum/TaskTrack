@@ -13,18 +13,26 @@ export class RoleGuard {
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
     const expectedRole = route.data['role'];
-    const currentUser = this.authService.getCurrentUser();
+    const userRole = this.authService.getUserRole();
     
-    let userRole = '';
-    if (currentUser) {
-      userRole = currentUser.role || '';
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/auth/login']);
+      return false;
     }
     
-    if (this.authService.isAuthenticated() && userRole === expectedRole) {
+    if (userRole === expectedRole) {
       return true;
     }
     
-    this.router.navigate(['/dashboard']);
+    // Redirect based on role
+    if (userRole === 'ADMIN') {
+      this.router.navigate(['/admin/dashboard']);
+    } else if (userRole === 'USER') {
+      this.router.navigate(['/user/dashboard']);
+    } else {
+      this.router.navigate(['/auth/login']);
+    }
+    
     return false;
   }
 }

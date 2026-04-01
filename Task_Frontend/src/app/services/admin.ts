@@ -8,7 +8,7 @@ import { Task } from '../Model/task';
   providedIn: 'root'
 })
 export class AdminService {
-  private apiUrl = 'http://localhost:8080/api/admin';
+  private apiUrl = 'http://localhost:8080/admin';
 
   constructor(private http: HttpClient) {}
 
@@ -16,16 +16,12 @@ export class AdminService {
     return this.http.get<User[]>(`${this.apiUrl}/users`);
   }
 
-  getUserById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/users/${id}`);
+  createUser(user: User): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/users`, user);
   }
 
-  updateUserRole(id: number, role: 'user' | 'admin'): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/users/${id}/role`, { role });
-  }
-
-  deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/users/${id}`);
+  deleteUser(id: number): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/users/${id}`);
   }
 
   getUserTasks(userId: number): Observable<Task[]> {

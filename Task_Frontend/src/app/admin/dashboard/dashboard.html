@@ -1,53 +1,528 @@
-<div class="admin-dashboard">
-  <div class="dashboard-header">
-    <h1>Admin Dashboard</h1>
-    <p>Welcome, {{ currentUser?.name }}! You have administrator privileges.</p>
+<!-- admin-dashboard.component.html -->
+<div class="dashboard">
+  <!-- Modern Sidebar -->
+  <aside class="sidebar" [class.sidebar-collapsed]="isMini">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">👑</div>
+        <div class="logo-text" *ngIf="!isMini">AdminFlow</div>
+      </div>
+      <button class="toggle-btn" (click)="toggleSidebar()">
+        <i class="material-icons">{{ isMini ? 'chevron_right' : 'chevron_left' }}</i>
+      </button>
+    </div>
+
+    <div class="sidebar-menu">
+      <div class="menu-section">
+        <p class="menu-label" *ngIf="!isMini">MAIN</p>
+        <a 
+          *ngFor="let item of menuItems" 
+          class="menu-item"
+          [class.active]="item.active"
+          (click)="setView(item.path)">
+          <i class="material-icons">{{ item.icon }}</i>
+          <span *ngIf="!isMini">{{ item.name }}</span>
+          <div class="active-indicator" *ngIf="item.active"></div>
+        </a>
+      </div>
+
+      <div class="menu-section">
+        <p class="menu-label" *ngIf="!isMini">ACCOUNT</p>
+        <a class="menu-item" (click)="logout()">
+          <i class="material-icons">logout</i>
+          <span *ngIf="!isMini">Logout</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="sidebar-footer" *ngIf="!isMini">
+      <div class="user-info">
+        <div class="user-avatar">
+          {{ currentAdmin?.name?.charAt(0) || 'A' }}
+        </div>
+        <div class="user-details">
+          <p class="user-name">{{ currentAdmin?.name || 'Admin' }}</p>
+          <p class="user-email">{{ currentAdmin?.email }}</p>
+          <p class="user-role">Administrator</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Modern Header -->
+    <header class="header">
+      <div class="header-left">
+        <h1 class="page-title">{{ getPageTitle() }}</h1>
+        <p class="page-subtitle">{{ getPageSubtitle() }}</p>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn">
+          <i class="material-icons">search</i>
+        </button>
+        <div class="notifications">
+          <button class="icon-btn" (click)="toggleNotifications()">
+            <i class="material-icons">notifications</i>
+            <span class="badge" *ngIf="notificationsCount > 0">{{ notificationsCount }}</span>
+          </button>
+          <div class="notifications-dropdown" *ngIf="showNotifications">
+            <div class="dropdown-header">
+              <h4>Notifications</h4>
+              <button class="mark-all" (click)="markAllNotificationsRead()">Mark all as read</button>
+            </div>
+            <div class="notification-item" *ngFor="let notif of notifications">
+              <i class="material-icons">{{ notif.icon }}</i>
+              <div class="notification-content">
+                <p>{{ notif.message }}</p>
+                <span>{{ notif.timeAgo }}</span>
+              </div>
+            </div>
+            <div *ngIf="notifications.length === 0" class="empty-notifications">
+              <p>No new notifications</p>
+            </div>
+          </div>
+        </div>
+        <div class="user-menu" (click)="toggleUserMenu()">
+          <div class="avatar">
+            {{ currentAdmin?.name?.charAt(0) || 'A' }}
+          </div>
+          <div class="user-menu-dropdown" *ngIf="showUserMenu">
+            <a (click)="setView('profile')">Profile</a>
+            <a (click)="setView('settings')">Settings</a>
+            <div class="divider"></div>
+            <a (click)="logout()">Logout</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="content">
+      <!-- Dashboard Overview -->
+      <div *ngIf="currentView === 'dashboard'" class="fade-in">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <div class="banner-content">
+            <h2>{{ getGreeting() }}, Admin {{ currentAdmin?.name || 'User' }}! 👋</h2>
+            <p>Manage users, assign tasks, and monitor team productivity from one place.</p>
+          </div>
+          <div class="banner-stats">
+            <div class="stat">
+              <div class="stat-value">{{ overallCompletionRate }}%</div>
+              <div class="stat-label">Team Productivity</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon total-users">
+              <i class="material-icons">people</i>
+            </div>
+            <div class="stat-info">
+              <h3>{{ totalUsers }}</h3>
+              <p>Total Users</p>
+            </div>
+            <div class="stat-trend positive">
+              <i class="material-icons">trending_up</i>
+              <span>+{{ userGrowthRate }}%</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon total-tasks">
+              <i class="material-icons">assignment</i>
+            </div>
+            <div class="stat-info">
+              <h3>{{ totalTasks }}</h3>
+              <p>Total Tasks</p>
+            </div>
+            <div class="stat-trend positive">
+              <i class="material-icons">trending_up</i>
+              <span>+{{ taskGrowthRate }}%</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon completed-tasks">
+              <i class="material-icons">check_circle</i>
+            </div>
+            <div class="stat-info">
+              <h3>{{ completedTasks }}</h3>
+              <p>Completed Tasks</p>
+            </div>
+            <div class="stat-trend positive">
+              <i class="material-icons">trending_up</i>
+              <span>+{{ completedGrowthRate }}%</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon pending-tasks">
+              <i class="material-icons">pending_actions</i>
+            </div>
+            <div class="stat-info">
+              <h3>{{ pendingTasks }}</h3>
+              <p>Pending Tasks</p>
+            </div>
+            <div class="stat-trend negative">
+              <i class="material-icons">trending_down</i>
+              <span>-{{ pendingDecreaseRate }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Users & Tasks Section -->
+        <div class="two-column-grid">
+          <!-- Recent Users -->
+          <div class="recent-users">
+            <div class="section-header">
+              <h3>Recent Users</h3>
+              <button class="view-all" (click)="setView('users')">View All <i class="material-icons">arrow_forward</i></button>
+            </div>
+            <div class="users-list">
+              <div *ngFor="let user of users.slice(0, 4)" class="user-item">
+                <div class="user-avatar-sm" [style.background]="getUserAvatarColor(user)">
+                  {{ user.name.charAt(0) || 'U' }}
+                </div>
+                <div class="user-info-sm">
+                  <h4>{{ user.name }}</h4>
+                  <p>{{ user.email }}</p>
+                </div>
+                <div class="user-task-count">
+                  <i class="material-icons">assignment</i>
+                  <span>{{ user.taskCount || 0 }} tasks</span>
+                </div>
+              </div>
+              <div *ngIf="users.length === 0" class="empty-state small">
+                <i class="material-icons">people_outline</i>
+                <p>No users yet. Create your first user!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Tasks -->
+          <div class="recent-tasks">
+            <div class="section-header">
+              <h3>Recent Tasks</h3>
+              <button class="view-all" (click)="setView('tasks')">View All <i class="material-icons">arrow_forward</i></button>
+            </div>
+            <div class="tasks-list">
+              <div *ngFor="let task of tasks.slice(0, 4)" class="task-item" [class.completed]="task.status === 'completed'">
+                <div class="task-status">
+                  <div class="status-dot" [ngClass]="task.status"></div>
+                </div>
+                <div class="task-details">
+                  <h4>{{ task.title }}</h4>
+                  <div class="task-meta">
+                    <span><i class="material-icons">person</i> {{ getAssignedUserName(task.assignedTo) }}</span>
+                    <span><i class="material-icons">schedule</i> {{ task.createdAt | date:'MMM d, yyyy' }}</span>
+                    <span class="status-badge" [ngClass]="task.status">{{ getStatusText(task.status) }}</span>
+                  </div>
+                </div>
+                <div class="task-actions">
+                  <button class="icon-btn-sm" (click)="editTask(task.id)">
+                    <i class="material-icons">edit</i>
+                  </button>
+                </div>
+              </div>
+              <div *ngIf="tasks.length === 0" class="empty-state small">
+                <i class="material-icons">assignment_outline</i>
+                <p>No tasks yet. Create tasks for users!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task Distribution Chart -->
+        <div class="task-distribution">
+          <div class="section-header">
+            <h3>Task Status Distribution</h3>
+          </div>
+          <div class="distribution-bars">
+            <div class="distribution-item">
+              <div class="distribution-label">Completed</div>
+              <div class="bar-container">
+                <div class="bar completed-bar" [style.width.%]="getCompletedPercentage()"></div>
+              </div>
+              <div class="distribution-value">{{ getCompletedPercentage() }}%</div>
+            </div>
+            <div class="distribution-item">
+              <div class="distribution-label">In Progress</div>
+              <div class="bar-container">
+                <div class="bar progress-bar" [style.width.%]="getInProgressPercentage()"></div>
+              </div>
+              <div class="distribution-value">{{ getInProgressPercentage() }}%</div>
+            </div>
+            <div class="distribution-item">
+              <div class="distribution-label">Pending</div>
+              <div class="bar-container">
+                <div class="bar pending-bar" [style.width.%]="getPendingPercentage()"></div>
+              </div>
+              <div class="distribution-value">{{ getPendingPercentage() }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Management View -->
+      <div *ngIf="currentView === 'users'" class="fade-in">
+        <div class="view-header">
+          <h2>User Management</h2>
+          <button class="btn-primary" (click)="openCreateUserModal()">
+            <i class="material-icons">person_add</i> Create User
+          </button>
+        </div>
+
+        <div class="users-table-container">
+          <table class="users-table">
+            <thead>
+               <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Tasks Assigned</th>
+                <th>Completed</th>
+                <th>Join Date</th>
+                <th>Actions</th>
+               </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of users">
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar-sm" [style.background]="getUserAvatarColor(user)">
+                      {{ user.name.charAt(0) || 'U' }}
+                    </div>
+                    <span>{{ user.name }}</span>
+                  </div>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.taskCount || 0 }}</td>
+                <td>
+                  <div class="progress-cell">
+                    <div class="mini-progress">
+                      <div class="mini-progress-bar" [style.width.%]="getUserCompletionRate(user)"></div>
+                    </div>
+                    <span>{{ getUserCompletionRate(user) }}%</span>
+                  </div>
+                </td>
+                <td>{{ user.createdAt | date:'MMM d, yyyy' }}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="icon-btn-sm" (click)="assignTaskToUser(user)" title="Assign Task">
+                      <i class="material-icons">add_task</i>
+                    </button>
+                    <button class="icon-btn-sm" (click)="editUser(user)" title="Edit User">
+                      <i class="material-icons">edit</i>
+                    </button>
+                    <button class="icon-btn-sm danger" (click)="deleteUser(user.id)" title="Delete User">
+                      <i class="material-icons">delete</i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="users.length === 0">
+                <td colspan="6" class="empty-table">
+                  <i class="material-icons">people_outline</i>
+                  <p>No users found. Create your first user to get started.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tasks Management View -->
+      <div *ngIf="currentView === 'tasks'" class="fade-in">
+        <div class="view-header">
+          <h2>Task Management</h2>
+          <button class="btn-primary" (click)="openCreateTaskModal()">
+            <i class="material-icons">add_task</i> Create Task
+          </button>
+        </div>
+
+        <!-- Task Filters -->
+        <div class="task-filters">
+          <div class="filter-group">
+            <label>Status</label>
+            <select [(ngModel)]="taskFilterStatus" (change)="filterTasks()">
+              <option value="all">All Tasks</option>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Assigned To</label>
+            <select [(ngModel)]="taskFilterUser" (change)="filterTasks()">
+              <option value="all">All Users</option>
+              <option *ngFor="let user of users" [value]="user.id">{{ user.name }}</option>
+            </select>
+          </div>
+          <div class="filter-group search-filter">
+            <i class="material-icons">search</i>
+            <input type="text" placeholder="Search tasks..." [(ngModel)]="taskSearchTerm" (input)="filterTasks()">
+          </div>
+        </div>
+
+        <div class="tasks-table-container">
+          <table class="tasks-table">
+            <thead>
+               <tr>
+                <th>Task</th>
+                <th>Assigned To</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+               </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let task of filteredTasks">
+                <td>
+                  <div class="task-cell">
+                    <strong>{{ task.title }}</strong>
+                    <p>{{ task.description | slice:0:60 }}{{ task.description.length > 60 ? '...' : '' }}</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="assigned-user">
+                    <ng-container *ngIf="getUserById(task.assignedTo) as assignedUser">
+                      <div class="user-avatar-xs" [style.background]="getUserAvatarColor(assignedUser)">
+                        {{ assignedUser.name.charAt(0) || '?' }}
+                      </div>
+                      <span>{{ assignedUser.name }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="!getUserById(task.assignedTo)">
+                      <div class="user-avatar-xs" style="background: #94a3b8;">
+                        ?
+                      </div>
+                      <span>Unassigned</span>
+                    </ng-container>
+                  </div>
+                </td>
+                <td>
+                  <select class="status-select" [ngClass]="task.status" [(ngModel)]="task.status" (change)="updateTaskStatus(task)">
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </td>
+                <td>{{ task.createdAt | date:'MMM d, yyyy' }}</td>
+                <td>{{ task.dueDate ? (task.dueDate | date:'MMM d, yyyy') : 'Not set' }}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="icon-btn-sm" (click)="editTaskDetails(task)" title="Edit Task">
+                      <i class="material-icons">edit</i>
+                    </button>
+                    <button class="icon-btn-sm danger" (click)="deleteTask(task.id)" title="Delete Task">
+                      <i class="material-icons">delete</i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="filteredTasks.length === 0">
+                <td colspan="6" class="empty-table">
+                  <i class="material-icons">assignment_outline</i>
+                  <p>No tasks found. Create a new task to get started.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Create/Edit User Modal -->
+<div class="modal-overlay" *ngIf="showUserModal" (click)="closeUserModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ editingUser ? 'Edit User' : 'Create New User' }}</h3>
+      <button class="close-modal" (click)="closeUserModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" [(ngModel)]="userForm.name" placeholder="Enter full name">
+      </div>
+      <div class="form-group">
+        <label>Email Address *</label>
+        <input type="email" [(ngModel)]="userForm.email" placeholder="Enter email address">
+      </div>
+      <div class="form-group" *ngIf="!editingUser">
+        <label>Password *</label>
+        <input type="password" [(ngModel)]="userForm.password" placeholder="Enter password">
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select [(ngModel)]="userForm.role">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeUserModal()">Cancel</button>
+      <button class="btn-primary" (click)="saveUser()">{{ editingUser ? 'Update' : 'Create' }}</button>
+    </div>
   </div>
+</div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon">
-        <i class="fas fa-users"></i>
+<!-- Create/Edit Task Modal -->
+<div class="modal-overlay" *ngIf="showTaskModal" (click)="closeTaskModal()">
+  <div class="modal-container modal-large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ editingTask ? 'Edit Task' : 'Create New Task' }}</h3>
+      <button class="close-modal" (click)="closeTaskModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Task Title *</label>
+        <input type="text" [(ngModel)]="taskForm.title" placeholder="Enter task title">
       </div>
-      <div class="stat-info">
-        <h3>{{ totalUsers }}</h3>
-        <p>Total Users</p>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="taskForm.description" rows="3" placeholder="Enter task description"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Assign To *</label>
+          <select [(ngModel)]="taskForm.assignedTo">
+            <option [value]="null">Select a user</option>
+            <option *ngFor="let user of users" [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select [(ngModel)]="taskForm.status">
+            <option value="pending">Pending</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" [(ngModel)]="taskForm.dueDate">
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select [(ngModel)]="taskForm.priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
       </div>
     </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">
-        <i class="fas fa-tasks"></i>
-      </div>
-      <div class="stat-info">
-        <h3>{{ totalTasks }}</h3>
-        <p>Total Tasks</p>
-      </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeTaskModal()">Cancel</button>
+      <button class="btn-primary" (click)="saveTask()">{{ editingTask ? 'Update' : 'Create' }}</button>
     </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      <div class="stat-info">
-        <h3>{{ completedTasks }}</h3>
-        <p>Completed Tasks</p>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">
-        <i class="fas fa-clock"></i>
-      </div>
-      <div class="stat-info">
-        <h3>{{ pendingTasks }}</h3>
-        <p>Pending Tasks</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="admin-actions">
-    <button class="btn-primary" routerLink="/admin/users">Manage Users</button>
-    <button class="btn-primary" routerLink="/admin/tasks">Manage Tasks</button>
   </div>
 </div>

@@ -1,11 +1,11 @@
 export interface User {
   id: number;
-  name: string;        // Backend uses 'name' not 'username'
+  name: string;
   email: string;
   password?: string;
-  role?: string;
-  createdAt?: string;  // Add createdAt if needed
-  updatedAt?: string;
+  role?: 'USER' | 'ADMIN';
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface UserLogin {
@@ -14,13 +14,15 @@ export interface UserLogin {
 }
 
 export interface UserRegister {
-  name: string;        // Backend expects 'name'
+  name: string;
   email: string;
   password: string;
+  role?: 'USER' | 'ADMIN';
 }
 
 export interface AuthResponse {
   token: string;
-  user: User;
-  message?: string;
+  role: 'USER' | 'ADMIN';
+  username: string;
+  email: string;
 }

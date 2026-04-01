@@ -1,6 +1,10 @@
 package com.tasktracker.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,43 +21,55 @@ import com.tasktracker.security.JwtUtil;
 @CrossOrigin(origins="http://localhost:4200")
 public class AuthController {
 
-	  @Autowired
-	    private UserRepository repo;
+    @Autowired
+    private UserRepository repo;
 
-	    @Autowired
-	    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-	    @Autowired
-	    private JwtUtil jwtUtil;
+    @Autowired
+    private JwtUtil jwtUtil;
 
-	    // Signup
-	    @PostMapping("/signup")
-	    public User signup(@RequestBody User user) {
+    // Signup
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@RequestBody User user) {
+        // Check if user already exists
+        if (repo.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
+        }
+        
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        
+        // Default role is USER if not specified
+        if (user.getRole() == null) {
+            user.setRole(com.tasktracker.model.Role.USER);
+        }
 
-	        String encodedPassword = passwordEncoder.encode(user.getPassword());
-	        user.setPassword(encodedPassword);
+        User savedUser = repo.save(user);
+        
+        // Remove password from response
+        savedUser.setPassword(null);
+        return ResponseEntity.ok(savedUser);
+    }
 
-	        return repo.save(user);
-	    }
+    // Login - Return token and role
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody User user) {
+        User dbUser = repo.findByEmail(user.getEmail()).orElse(null);
 
-	    // Login
-	    @PostMapping("/login")
-	    public String login(@RequestBody User user) {
+        if (dbUser != null && passwordEncoder.matches(user.getPassword(), dbUser.getPassword())) {
+            String token = jwtUtil.generateToken(user.getEmail(), dbUser.getRole().toString());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("role", dbUser.getRole().toString());
+            response.put("username", dbUser.getName());
+            response.put("email", dbUser.getEmail());
+            
+            return ResponseEntity.ok(response);
+        }
 
-	        User dbUser = repo.findByEmail(user.getEmail()).orElse(null);
-
-	        if (dbUser != null && passwordEncoder.matches(user.getPassword(), dbUser.getPassword())) {
-
-	            String token = jwtUtil.generateToken(user.getEmail());
-
-	            return token;
-	        }
-
-	        return "Invalid Credentials";
-	    }
-	}
-	
-
-    
-
-
+        return ResponseEntity.status(401).body(Map.of("error", "Invalid Credentials"));
+    }
+}
