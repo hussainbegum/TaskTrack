@@ -30,9 +30,16 @@ public class AdminController {
 	    }
 
 	    // create user
-	    @PostMapping("/users")
+	    @PostMapping("/add-user") 
 	    public User createUser(@RequestBody User user){
-	        return adminService.createUser(user);
+	        return adminService.addUser(user);
+	   
+	    }
+	    
+	    
+	    @GetMapping("/user/{userId}/tasks")
+	    public List<Task> getTasksByUser(@PathVariable Long userId) {
+	        return adminService.getTasksByUser(userId);
 	    }
 
 	    // delete user

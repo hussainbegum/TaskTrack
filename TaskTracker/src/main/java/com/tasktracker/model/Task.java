@@ -30,7 +30,7 @@ public class Task {
 	    private String status;
 
 	    private LocalDate dueDate;	
-	    @JsonIgnore
+	  
 	    @ManyToOne
 	    @JoinColumn(name = "user_id")
 	    private User user;

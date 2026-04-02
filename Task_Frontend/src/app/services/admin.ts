@@ -17,7 +17,7 @@ export class AdminService {
   }
 
   createUser(user: User): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/users`, user);
+    return this.http.post<User>(`${this.apiUrl}/add-user`, user);
   }
 
   deleteUser(id: number): Observable<string> {

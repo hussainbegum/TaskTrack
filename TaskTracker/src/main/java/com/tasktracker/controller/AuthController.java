@@ -38,6 +38,8 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
         }
         
+      
+        
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         
@@ -66,10 +68,31 @@ public class AuthController {
             response.put("role", dbUser.getRole().toString());
             response.put("username", dbUser.getName());
             response.put("email", dbUser.getEmail());
+            response.put("firstLogin", dbUser.isFirstLogin());
             
             return ResponseEntity.ok(response);
         }
 
         return ResponseEntity.status(401).body(Map.of("error", "Invalid Credentials"));
+    }
+    
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> request) {
+
+        String email = request.get("email");
+        String newPassword = request.get("newPassword");
+
+        User user = repo.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setFirstLogin(false);
+
+        repo.save(user);
+
+        return ResponseEntity.ok("Password changed successfully");
     }
 }

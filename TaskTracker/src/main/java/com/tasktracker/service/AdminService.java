@@ -3,6 +3,7 @@ package com.tasktracker.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tasktracker.model.Task;
@@ -12,32 +13,53 @@ import com.tasktracker.repository.UserRepository;
 
 @Service
 public class AdminService {
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private TaskRepository taskRepository;
 
-    // Get all users
-    public List<User> getAllUsers(){
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // Create user
-    public User createUser(User user){
-        return userRepository.save(user);
+    public User addUser(User user) {
+
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        String rawPassword = user.getPassword();
+
+        user.setPassword(passwordEncoder.encode(rawPassword));
+
+        User savedUser = userRepository.save(user);
+
+        emailService.sendCredentialsMail(
+                savedUser.getEmail(),
+                savedUser.getEmail(),
+                rawPassword
+        );
+
+        return savedUser;
     }
 
-    // Delete user
-    public void deleteUser(Long id){
+    public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
-    // Get tasks of specific user
-    public List<Task> getUserTasks(Long userId){
+    public List<Task> getTasksByUser(Long userId) {
         return taskRepository.findByUserId(userId);
     }
 
+    public List<Task> getUserTasks(Long userId) {
+        return taskRepository.findByUserId(userId);
+    }
 }
-
-

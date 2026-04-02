@@ -1,5 +1,6 @@
 package com.tasktracker.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -15,16 +16,29 @@ public class User {
 	 @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
     private String name;
+    @Column(unique = true)
     private String email;
     private String password;
     
-    @Enumerated(EnumType.STRING)
+    private boolean firstLogin = true;
+    
+    public boolean isFirstLogin() {
+		return firstLogin;
+	}
+
+	public void setFirstLogin(boolean firstLogin) {
+		this.firstLogin = firstLogin;
+	}
+
+	@Enumerated(EnumType.STRING)
     private Role role;
 
+	
+	
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + ", role=" + role
-				+ "]";
+		return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + ", firstLogin="
+				+ firstLogin + ", role=" + role + "]";
 	}
 
 	public Long getId() {
