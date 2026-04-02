@@ -43,4 +43,57 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+    
+ // EmailService.java - Add this method
+    public void sendTaskAssignmentEmail(String toEmail, String userName, String taskTitle, String taskDescription, String dueDate) {
+        try {
+            System.out.println("Attempting to send task assignment email to: " + toEmail);
+            
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("New Task Assigned: " + taskTitle);
+            message.setText(String.format(
+                "Dear %s,\n\n" +
+                "A new task has been assigned to you.\n\n" +
+                "Task Details:\n" +
+                "Title: %s\n" +
+                "Description: %s\n" +
+                "Due Date: %s\n\n" +
+                "Please log in to your dashboard to view and update the task status.\n\n" +
+                "Regards,\n" +
+                "Task Tracker Team",
+                userName, taskTitle, taskDescription != null ? taskDescription : "No description provided", 
+                dueDate != null ? dueDate : "Not set"
+            ));
+            
+            mailSender.send(message);
+            System.out.println("Task assignment email sent successfully to: " + toEmail);
+        } catch (Exception e) {
+            System.err.println("Failed to send task assignment email: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    public void sendTaskCompletionEmail(String toEmail, String userName, String taskTitle) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("Task Completed: " + taskTitle);
+            message.setText(String.format(
+                "Dear %s,\n\n" +
+                "Great news! The following task has been marked as completed:\n\n" +
+                "Task: %s\n\n" +
+                "Keep up the good work!\n\n" +
+                "Regards,\n" +
+                "Task Tracker Team",
+                userName, taskTitle
+            ));
+            
+            mailSender.send(message);
+            System.out.println("Task completion email sent to: " + toEmail);
+        } catch (Exception e) {
+            System.err.println("Failed to send task completion email: " + e.getMessage());
+        }
+    }
 }

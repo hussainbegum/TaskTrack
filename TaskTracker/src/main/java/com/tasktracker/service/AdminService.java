@@ -90,25 +90,130 @@ public class AdminService {
         if (task.getStatus() == null) {
             task.setStatus("pending");
         }
-        return taskRepository.save(task);
+        
+        Task savedTask = taskRepository.save(task);
+        
+        // Send email to the assigned user
+        if (savedTask.getUserId() != null) {
+            try {
+                User assignedUser = userRepository.findById(savedTask.getUserId()).orElse(null);
+                if (assignedUser != null && assignedUser.getEmail() != null) {
+                    String dueDateStr = savedTask.getDueDate() != null ? savedTask.getDueDate().toString() : null;
+                    emailService.sendTaskAssignmentEmail(
+                        assignedUser.getEmail(),
+                        assignedUser.getName(),
+                        savedTask.getTitle(),
+                        savedTask.getDescription(),
+                        dueDateStr
+                    );
+                    System.out.println("Task assignment email sent to: " + assignedUser.getEmail());
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to send task assignment email: " + e.getMessage());
+            }
+        }
+        
+        return savedTask;
     }
 
     public Task updateTask(Task task){
         Task existingTask = taskRepository.findById(task.getId()).orElse(null);
         if (existingTask != null) {
+            Long previousUserId = existingTask.getUserId();
+            boolean isUserChanged = false;
+            
             if (task.getTitle() != null) existingTask.setTitle(task.getTitle());
             if (task.getDescription() != null) existingTask.setDescription(task.getDescription());
             if (task.getStatus() != null) existingTask.setStatus(task.getStatus());
-            if (task.getUserId() != null) existingTask.setUserId(task.getUserId());
+            
+            // Check if user is being reassigned
+            if (task.getUserId() != null) {
+                if (previousUserId == null || !previousUserId.equals(task.getUserId())) {
+                    isUserChanged = true;
+                }
+                existingTask.setUserId(task.getUserId());
+            }
+            
             if (task.getPriority() != null) existingTask.setPriority(task.getPriority());
             if (task.getDueDate() != null) existingTask.setDueDate(task.getDueDate());
             existingTask.setUpdatedAt(new Date());
-            return taskRepository.save(existingTask);
+            
+            Task updatedTask = taskRepository.save(existingTask);
+            
+            // Send email if task is reassigned to a different user
+            if (isUserChanged && updatedTask.getUserId() != null) {
+                try {
+                    User assignedUser = userRepository.findById(updatedTask.getUserId()).orElse(null);
+                    if (assignedUser != null && assignedUser.getEmail() != null) {
+                        String dueDateStr = updatedTask.getDueDate() != null ? updatedTask.getDueDate().toString() : null;
+                        emailService.sendTaskAssignmentEmail(
+                            assignedUser.getEmail(),
+                            assignedUser.getName(),
+                            updatedTask.getTitle(),
+                            updatedTask.getDescription(),
+                            dueDateStr
+                        );
+                        System.out.println("Task reassignment email sent to: " + assignedUser.getEmail());
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to send task reassignment email: " + e.getMessage());
+                }
+            }
+            
+            // Send email if task status changed to completed
+            if (task.getStatus() != null && "completed".equals(task.getStatus()) && !"completed".equals(existingTask.getStatus())) {
+                try {
+                    User assignedUser = userRepository.findById(updatedTask.getUserId()).orElse(null);
+                    if (assignedUser != null && assignedUser.getEmail() != null) {
+                        emailService.sendTaskCompletionEmail(
+                            assignedUser.getEmail(),
+                            assignedUser.getName(),
+                            updatedTask.getTitle()
+                        );
+                        System.out.println("Task completion email sent to: " + assignedUser.getEmail());
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to send task completion email: " + e.getMessage());
+                }
+            }
+            
+            return updatedTask;
         }
         return null;
     }
 
     public void deleteTask(Long id){
         taskRepository.deleteById(id);
+    }
+    
+    // Add this method for updating just the task status
+    public Task updateTaskStatus(Long taskId, String status) {
+        Task task = taskRepository.findById(taskId).orElse(null);
+        if (task != null) {
+            String previousStatus = task.getStatus();
+            task.setStatus(status);
+            task.setUpdatedAt(new Date());
+            Task updatedTask = taskRepository.save(task);
+            
+            // Send email if task is marked as completed
+            if (!"completed".equals(previousStatus) && "completed".equals(status)) {
+                try {
+                    User assignedUser = userRepository.findById(task.getUserId()).orElse(null);
+                    if (assignedUser != null && assignedUser.getEmail() != null) {
+                        emailService.sendTaskCompletionEmail(
+                            assignedUser.getEmail(),
+                            assignedUser.getName(),
+                            task.getTitle()
+                        );
+                        System.out.println("Task completion email sent to: " + assignedUser.getEmail());
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to send task completion email: " + e.getMessage());
+                }
+            }
+            
+            return updatedTask;
+        }
+        return null;
     }
 }

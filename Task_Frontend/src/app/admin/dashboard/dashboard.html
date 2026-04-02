@@ -14,8 +14,8 @@
     <div class="sidebar-menu">
       <div class="menu-section">
         <p class="menu-label" *ngIf="!isMini">MAIN</p>
-        <a 
-          *ngFor="let item of menuItems" 
+        <a
+          *ngFor="let item of menuItems"
           class="menu-item"
           [class.active]="item.active"
           (click)="setView(item.path)">
@@ -98,6 +98,7 @@
 
     <!-- Dashboard Content -->
     <div class="content">
+
       <!-- Dashboard Overview -->
       <div *ngIf="currentView === 'dashboard'" class="fade-in">
         <!-- Welcome Banner -->
@@ -279,14 +280,14 @@
         <div class="users-table-container">
           <table class="users-table">
             <thead>
-               <tr>
+              <tr>
                 <th>User</th>
                 <th>Email</th>
                 <th>Tasks Assigned</th>
                 <th>Completed</th>
                 <th>Join Date</th>
                 <th>Actions</th>
-               </tr>
+              </tr>
             </thead>
             <tbody>
               <tr *ngFor="let user of users">
@@ -345,7 +346,6 @@
 
         <!-- Task Filters -->
         <div class="task-filters">
-          <!-- Left Group: Status and Assigned To -->
           <div class="filter-group-left">
             <div class="filter-group">
               <label>Status</label>
@@ -356,7 +356,6 @@
                 <option value="completed">Completed</option>
               </select>
             </div>
-            
             <div class="filter-group">
               <label>Assigned To</label>
               <select [(ngModel)]="taskFilterUser" (change)="filterTasks()">
@@ -365,14 +364,14 @@
               </select>
             </div>
           </div>
-          
-          <!-- Right Group: Search -->
           <div class="filter-group-right">
             <div class="filter-group search-filter">
               <label>Search</label>
-              <i class="material-icons">search</i>
-              <input type="text" placeholder="Search tasks by title or description..." 
-                    [(ngModel)]="taskSearchTerm" (input)="filterTasks()">
+              <div class="search-input-wrapper">
+                <i class="material-icons">search</i>
+                <input type="text" placeholder="Search tasks by title or description..."
+                  [(ngModel)]="taskSearchTerm" (input)="filterTasks()">
+              </div>
             </div>
           </div>
         </div>
@@ -380,21 +379,21 @@
         <div class="tasks-table-container">
           <table class="tasks-table">
             <thead>
-               <tr>
+              <tr>
                 <th>Task</th>
                 <th>Assigned To</th>
                 <th>Status</th>
                 <th>Created</th>
                 <th>Due Date</th>
                 <th>Actions</th>
-               </tr>
+              </tr>
             </thead>
             <tbody>
               <tr *ngFor="let task of filteredTasks">
                 <td>
                   <div class="task-cell">
                     <strong>{{ task.title }}</strong>
-                    <p>{{ (task.description ) | slice:0:60 }}{{ (task.description || '').length > 60 ? '...' : '' }}</p>
+                    <p>{{ (task.description) | slice:0:60 }}{{ (task.description || '').length > 60 ? '...' : '' }}</p>
                   </div>
                 </td>
                 <td>
@@ -406,9 +405,7 @@
                       <span>{{ assignedUser.name }}</span>
                     </ng-container>
                     <ng-container *ngIf="!getUserById(task.userId)">
-                      <div class="user-avatar-xs" style="background: #94a3b8;">
-                        ?
-                      </div>
+                      <div class="user-avatar-xs" style="background: #94a3b8;">?</div>
                       <span>Unassigned</span>
                     </ng-container>
                   </div>
@@ -443,6 +440,7 @@
           </table>
         </div>
       </div>
+
     </div>
   </main>
 </div>
@@ -476,8 +474,11 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeUserModal()">Cancel</button>
-      <button class="btn-primary" (click)="saveUser()">{{ editingUser ? 'Update' : 'Create' }}</button>
+      <button class="btn-secondary" (click)="closeUserModal()" [disabled]="isSaving">Cancel</button>
+      <button class="btn-primary" (click)="saveUser()" [disabled]="isSaving">
+        <span *ngIf="isSaving">Saving...</span>
+        <span *ngIf="!isSaving">{{ editingUser ? 'Update' : 'Create' }}</span>
+      </button>
     </div>
   </div>
 </div>
@@ -487,7 +488,7 @@
   <div class="modal-container modal-large" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3>{{ editingTask ? 'Edit Task' : 'Create New Task' }}</h3>
-      <button class="close-modal" (click)="closeTaskModal()">✕</button>
+      <button class="close-modal" (click)="closeTaskModal()" [disabled]="isSaving">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
@@ -502,8 +503,8 @@
         <div class="form-group">
           <label>Assign To *</label>
           <select [(ngModel)]="taskForm.userId">
-            <option [value]="null">Select a user</option>
-            <option *ngFor="let user of users" [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+            <option [value]="0">Select a user</option>
+            <option *ngFor="let user of regularUsers" [value]="user.id">{{ user.name }}</option>
           </select>
         </div>
         <div class="form-group">
@@ -530,9 +531,13 @@
         </div>
       </div>
     </div>
+    <!-- ✅ FIX: isSaving disabled added to BOTH buttons, spinner on Create/Update -->
     <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeTaskModal()">Cancel</button>
-      <button class="btn-primary" (click)="saveTask()">{{ editingTask ? 'Update' : 'Create' }}</button>
+      <button class="btn-secondary" (click)="closeTaskModal()" [disabled]="isSaving">Cancel</button>
+      <button class="btn-primary" (click)="saveTask()" [disabled]="isSaving">
+        <span *ngIf="isSaving">Saving...</span>
+        <span *ngIf="!isSaving">{{ editingTask ? 'Update' : 'Create' }}</span>
+      </button>
     </div>
   </div>
 </div>
