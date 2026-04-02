@@ -35,6 +35,7 @@ public class AdminController {
 
     @PostMapping("/users")
     public User createUser(@RequestBody User user){
+    	
         System.out.println("Creating user: " + user.getEmail());
         return adminService.createUser(user);
     }

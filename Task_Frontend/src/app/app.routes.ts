@@ -3,7 +3,13 @@ import { AuthGuard } from './gurds/auth-guard';
 import { RoleGuard } from './gurds/role-guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/auth/login', pathMatch: 'full' },  // Changed from landing
+  { 
+    path: 'landing', 
+    loadComponent: () =>
+      import('./landing/landing').then(m => m.LandingComponent)
+  },
+  
+  { path: '', redirectTo: '/landing', pathMatch: 'full' },  
 
   {
     path: 'auth',
@@ -32,16 +38,6 @@ export const routes: Routes = [
           import('./admin/dashboard/dashboard').then(m => m.AdminDashboardComponent)
       },
       {
-        path: 'users',
-        loadComponent: () =>
-          import('./admin/users-list/users-list').then(m => m.UserListComponent)  // Fixed path
-      },
-      {
-        path: 'tasks',
-        loadComponent: () =>
-          import('./admin/task-list/task-list').then(m => m.TaskListComponent)  // Fixed path
-      },
-      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'
@@ -67,5 +63,5 @@ export const routes: Routes = [
     ]
   },
 
-  { path: '**', redirectTo: '/auth/login' }
+  { path: '**', redirectTo: '/landing' }
 ];

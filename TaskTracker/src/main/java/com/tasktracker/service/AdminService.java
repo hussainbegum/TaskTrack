@@ -22,17 +22,35 @@ public class AdminService {
     
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private EmailService emailService;
 
     // User Management
     public List<User> getAllUsers(){
         return userRepository.findAll();
     }
 
-    public User createUser(User user){
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-        return userRepository.save(user);
+    public User createUser(User user) {
+        User nuser = new User();
+        nuser.setName(user.getName());
+        nuser.setEmail(user.getEmail());
+        nuser.setRole(user.getRole());
+        
+        // Encode the password
+        String rawPassword = user.getPassword();
+        nuser.setPassword(passwordEncoder.encode(rawPassword));
+        
+        User savedUser = userRepository.save(nuser);
+        
+        // Send email with credentials
+        emailService.sendUserCredentials(
+            savedUser.getEmail(),
+            savedUser.getName(),
+            rawPassword
+        );
+        
+        return savedUser;
     }
     
     public User updateUser(User user){

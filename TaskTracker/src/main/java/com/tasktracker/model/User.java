@@ -26,7 +26,6 @@ public class User {
         return "User [id=" + id + ", name=" + name + ", email=" + email + ", role=" + role + "]";
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

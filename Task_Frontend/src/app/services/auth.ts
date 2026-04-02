@@ -16,9 +16,14 @@ export class AuthService {
   private readonly TOKEN_KEY = 'token';
   private readonly USER_KEY = 'user';
   private readonly ROLE_KEY = 'role';
+  private readonly TOKEN_EXPIRY_KEY = 'token_expiry';
+  private readonly SESSION_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+
+  private sessionCheckInterval: any;
 
   constructor(private http: HttpClient, private router: Router) {
     this.loadStoredUser();
+    this.startSessionCheck();
   }
 
   getCurrentUser(): User | null {
@@ -42,13 +47,20 @@ export class AuthService {
       const token = localStorage.getItem(this.TOKEN_KEY);
       const userStr = localStorage.getItem(this.USER_KEY);
       const role = localStorage.getItem(this.ROLE_KEY);
+      const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
+      
+      // Check if token is expired
+      if (tokenExpiry && this.isTokenExpired(tokenExpiry)) {
+        console.log('Token expired on load');
+        this.clearAllStorage();
+        return;
+      }
       
       if (token && userStr && role) {
         try {
           const user = JSON.parse(userStr);
           this.currentUserSubject.next(user);
           
-          // Auto-redirect if already logged in
           if (role === 'ADMIN') {
             this.router.navigate(['/admin/dashboard']);
           } else if (role === 'USER') {
@@ -59,6 +71,37 @@ export class AuthService {
         }
       }
     }
+  }
+
+  private startSessionCheck(): void {
+    // Check session every minute
+    this.sessionCheckInterval = setInterval(() => {
+      this.checkSessionExpiration();
+    }, 60000); // Check every minute
+  }
+
+  private checkSessionExpiration(): void {
+    const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
+    
+    if (tokenExpiry && this.isTokenExpired(tokenExpiry)) {
+      console.log('Session expired');
+      this.logoutWithMessage('Your session has expired. Please login again.');
+    }
+  }
+
+  private isTokenExpired(expiryTime: string): boolean {
+    const expiry = parseInt(expiryTime, 10);
+    return Date.now() > expiry;
+  }
+
+  private setSessionExpiry(): void {
+    const expiryTime = Date.now() + this.SESSION_DURATION;
+    localStorage.setItem(this.TOKEN_EXPIRY_KEY, expiryTime.toString());
+    
+    // Set a timeout to auto logout exactly at expiration
+    setTimeout(() => {
+      this.checkSessionExpiration();
+    }, this.SESSION_DURATION);
   }
 
   register(userData: UserRegister): Observable<User> {
@@ -85,6 +128,9 @@ export class AuthService {
       localStorage.setItem(this.TOKEN_KEY, response.token);
       localStorage.setItem(this.ROLE_KEY, response.role);
       
+      // Set session expiration (1 hour from now)
+      this.setSessionExpiry();
+      
       // Create user object
       const user: User = {
         id: 0,
@@ -96,6 +142,7 @@ export class AuthService {
       this.currentUserSubject.next(user);
       
       console.log('User stored, role:', response.role);
+      console.log('Session will expire at:', new Date(Date.now() + this.SESSION_DURATION).toLocaleString());
       
       // Force navigation after a small delay to ensure storage is complete
       setTimeout(() => {
@@ -119,11 +166,8 @@ export class AuthService {
   }
 
   logout(): void {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(this.TOKEN_KEY);
-      localStorage.removeItem(this.USER_KEY);
-      localStorage.removeItem(this.ROLE_KEY);
-    }
+    this.stopSessionCheck();
+    this.clearAllStorage();
     this.currentUserSubject.next(null);
     console.log('Logging out, navigating to login');
     this.router.navigate(['/auth/login']).then(success => {
@@ -131,19 +175,73 @@ export class AuthService {
     });
   }
 
+  logoutWithMessage(message: string): void {
+    this.stopSessionCheck();
+    this.clearAllStorage();
+    this.currentUserSubject.next(null);
+    console.log(message);
+    // You can show a toast message here if you have ToastrService injected
+    // this.toastr.warning(message, 'Session Expired');
+    this.router.navigate(['/auth/login'], { queryParams: { expired: 'true' } });
+  }
+
   getToken(): string | null {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem(this.TOKEN_KEY);
+      const token = localStorage.getItem(this.TOKEN_KEY);
+      const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
+      
+      // Check if token exists and is not expired
+      if (token && tokenExpiry && !this.isTokenExpired(tokenExpiry)) {
+        return token;
+      } else if (token && tokenExpiry && this.isTokenExpired(tokenExpiry)) {
+        // Token expired, clear session
+        this.logoutWithMessage('Your session has expired. Please login again.');
+        return null;
+      }
     }
     return null;
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
+    
+    if (!token || !tokenExpiry) {
+      return false;
+    }
+    
+    return !this.isTokenExpired(tokenExpiry);
   }
 
   isLoggedIn(): boolean {
     return this.isAuthenticated();
+  }
+
+  getSessionTimeRemaining(): number | null {
+    const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
+    if (!tokenExpiry) return null;
+    
+    const expiry = parseInt(tokenExpiry, 10);
+    const remaining = expiry - Date.now();
+    
+    return remaining > 0 ? remaining : 0;
+  }
+
+  getFormattedSessionTimeRemaining(): string {
+    const remaining = this.getSessionTimeRemaining();
+    if (!remaining || remaining <= 0) return 'Expired';
+    
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+    
+    return `${minutes}m ${seconds}s`;
+  }
+
+  private stopSessionCheck(): void {
+    if (this.sessionCheckInterval) {
+      clearInterval(this.sessionCheckInterval);
+      this.sessionCheckInterval = null;
+    }
   }
 
   private clearAllStorage(): void {
@@ -151,6 +249,7 @@ export class AuthService {
       localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem(this.USER_KEY);
       localStorage.removeItem(this.ROLE_KEY);
+      localStorage.removeItem(this.TOKEN_EXPIRY_KEY);
     }
   }
 
