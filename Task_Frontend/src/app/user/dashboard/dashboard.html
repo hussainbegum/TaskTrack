@@ -1,10 +1,8 @@
-<!-- dashboard.html -->
 <div class="dashboard">
   <!-- Modern Sidebar -->
   <aside class="sidebar" [class.sidebar-collapsed]="isMini">
     <div class="sidebar-header">
       <div class="logo">
-        <div class="logo-icon">📝</div>
         <div class="logo-text" *ngIf="!isMini">TaskFlow</div>
       </div>
       <button class="toggle-btn" (click)="toggleSidebar()">
@@ -43,6 +41,7 @@
         <div class="user-details">
           <p class="user-name">{{ currentUser?.name || 'User' }}</p>
           <p class="user-email">{{ currentUser?.email }}</p>
+          <p class="user-role">Team Member</p>
         </div>
       </div>
     </div>
@@ -73,8 +72,8 @@
             <div class="notification-item">
               <i class="material-icons">task_alt</i>
               <div class="notification-content">
-                <p>Task completed successfully</p>
-                <span>2 min ago</span>
+                <p>Task status updated successfully</p>
+                <span>Just now</span>
               </div>
             </div>
           </div>
@@ -121,10 +120,6 @@
               <h3>{{ totalTasks }}</h3>
               <p>Total Tasks</p>
             </div>
-            <div class="stat-trend positive">
-              <i class="material-icons">trending_up</i>
-              <span>+12%</span>
-            </div>
           </div>
 
           <div class="stat-card">
@@ -134,10 +129,6 @@
             <div class="stat-info">
               <h3>{{ completedTasks }}</h3>
               <p>Completed</p>
-            </div>
-            <div class="stat-trend positive">
-              <i class="material-icons">trending_up</i>
-              <span>+8%</span>
             </div>
           </div>
 
@@ -149,10 +140,6 @@
               <h3>{{ inProgressTasks }}</h3>
               <p>In Progress</p>
             </div>
-            <div class="stat-trend neutral">
-              <i class="material-icons">remove</i>
-              <span>0%</span>
-            </div>
           </div>
 
           <div class="stat-card">
@@ -163,17 +150,13 @@
               <h3>{{ pendingTasks }}</h3>
               <p>Pending</p>
             </div>
-            <div class="stat-trend negative">
-              <i class="material-icons">trending_down</i>
-              <span>-5%</span>
-            </div>
           </div>
         </div>
 
         <!-- Recent Tasks Section -->
         <div class="recent-tasks">
           <div class="section-header">
-            <h3>Recent Tasks</h3>
+            <h3>My Recent Tasks</h3>
             <button class="view-all" (click)="setView('tasks')">View All <i class="material-icons">arrow_forward</i></button>
           </div>
           
@@ -187,35 +170,100 @@
                 <p>{{ task.description | slice:0:80 }}{{ task.description.length > 80 ? '...' : '' }}</p>
                 <div class="task-meta">
                   <span><i class="material-icons">schedule</i> {{ task.createdAt | date:'MMM d, yyyy' }}</span>
-                  <span class="status-badge" [ngClass]="task.status">{{ getStatusText(task.status) }}</span>
+                  <span *ngIf="task.dueDate"><i class="material-icons">event</i> Due: {{ task.dueDate | date:'MMM d, yyyy' }}</span>
+                  <span class="priority-badge" [ngClass]="task.priority">{{ task.priority || 'medium' }}</span>
                 </div>
               </div>
               <div class="task-actions">
-                <button class="icon-btn-sm" (click)="editTask(task.id)">
-                  <i class="material-icons">edit</i>
+                <button class="icon-btn-sm" (click)="updateTaskStatus(task, task.status === 'pending' ? 'in-progress' : 'pending')" title="Change Status">
+                  <i class="material-icons">sync</i>
                 </button>
               </div>
             </div>
             
             <div *ngIf="tasks.length === 0" class="empty-state">
               <i class="material-icons">assignment</i>
-              <p>No tasks yet. Create your first task!</p>
-              <button class="btn-primary" (click)="setView('create-task')">Create Task</button>
+              <p>No tasks assigned to you yet.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Tasks View -->
+      <!-- My Tasks View -->
       <div *ngIf="currentView === 'tasks'" class="fade-in">
-        <app-task-list></app-task-list>
-      </div>
+        <div class="view-header">
+          <h2>My Tasks</h2>
+        </div>
 
-      <!-- Create Task View -->
-      <div *ngIf="currentView === 'create-task'" class="fade-in">
-        <app-create-task></app-create-task>
-      </div>
+        <!-- Task Filters -->
+        <div class="task-filters">
+          <label>Status</label>
+          <div class="filter-group">
+            <select [(ngModel)]="filterStatus" (change)="filterTasks()">
+              <option value="all">All Tasks</option>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div class="filter-group search-filter">
+            <i class="material-icons">search</i>
+            <input type="text" placeholder="Search tasks..." [(ngModel)]="searchTerm" (input)="filterTasks()">
+          </div>
+        </div>
 
+        <div class="tasks-table-container">
+          <table class="tasks-table">
+            <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Due Date</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let task of filteredTasks">
+                <td>
+                  <div class="task-cell">
+                    <strong>{{ task.title }}</strong>
+                    <p>{{ task.description | slice:0:60 }}{{ task.description.length > 60 ? '...' : '' }}</p>
+                  </div>
+                </td>
+                <td>
+                  <select class="status-select" [ngClass]="task.status" [(ngModel)]="task.status" (change)="updateTaskStatus(task, task.status)">
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </td>
+                <td>
+                  <span class="priority-badge" [ngClass]="task.priority || 'medium'">
+                    {{ task.priority || 'medium' }}
+                  </span>
+                </td>
+                <td>{{ task.dueDate ? (task.dueDate | date:'MMM d, yyyy') : 'Not set' }}</td>
+                <td>{{ task.createdAt | date:'MMM d, yyyy' }}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="icon-btn-sm" (click)="updateTaskStatus(task, task.status === 'pending' ? 'in-progress' : 'pending')" title="Quick Status Change">
+                      <i class="material-icons">sync</i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="filteredTasks.length === 0">
+                <td colspan="6" class="empty-table">
+                  <i class="material-icons">assignment_outline</i>
+                  <p>No tasks assigned to you.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </main>
 </div>

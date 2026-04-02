@@ -726,3 +726,361 @@
     padding: 1rem;
   }
 }
+
+/* Task Filters Section */
+.task-filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a6e8a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  background: white;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: rgba(4, 56, 115, 0.5);
+  box-shadow: 0 0 0 3px rgba(4, 56, 115, 0.1);
+}
+
+.search-filter {
+  position: relative;
+  flex: 2;
+}
+
+.search-filter i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.search-filter input {
+  padding-left: 40px;
+  width: 100%;
+}
+
+/* Tasks Table Container */
+.tasks-table-container {
+  background: white;
+  border-radius: 20px;
+  overflow-x: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.tasks-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.tasks-table th {
+  text-align: left;
+  padding: 1rem 1.5rem;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #5a6e8a;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fafbfc;
+}
+
+.tasks-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f0f2f5;
+  font-size: 14px;
+  color: #2c3e5c;
+  vertical-align: middle;
+}
+
+.tasks-table tr:hover {
+  background: #f8fafc;
+  transition: background 0.3s;
+}
+
+/* Task Cell */
+.task-cell strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: rgba(4, 56, 115, 1);
+  font-size: 15px;
+}
+
+.task-cell p {
+  font-size: 13px;
+  color: #5a6e8a;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Status Select Dropdown */
+.status-select {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+.status-select.pending {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.status-select.in-progress {
+  background: #fed7aa;
+  color: #f59e0b;
+}
+
+.status-select.completed {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.status-select:hover {
+  transform: scale(1.02);
+  filter: brightness(0.98);
+}
+
+/* Priority Badge */
+.priority-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.priority-badge.low {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.priority-badge.medium {
+  background: #fed7aa;
+  color: #f59e0b;
+}
+
+.priority-badge.high {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+
+.icon-btn-sm {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #5a6e8a;
+}
+
+.icon-btn-sm:hover {
+  background: #e2e8f0;
+  transform: scale(1.05);
+}
+
+.icon-btn-sm i {
+  font-size: 18px;
+}
+
+.icon-btn-sm:active {
+  transform: scale(0.95);
+}
+
+/* Empty State */
+.empty-table {
+  text-align: center !important;
+  padding: 3rem !important;
+}
+
+.empty-table i {
+  font-size: 48px;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.empty-table p {
+  color: #5a6e8a;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* View Header */
+.view-header {
+  margin-bottom: 1.5rem;
+}
+
+.view-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: rgba(4, 56, 115, 1);
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .task-filters {
+    flex-direction: column;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .search-filter {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .tasks-table-container {
+    border-radius: 12px;
+  }
+  
+  .tasks-table th,
+  .tasks-table td {
+    padding: 0.75rem 1rem;
+  }
+  
+  .task-cell strong {
+    font-size: 14px;
+  }
+  
+  .task-cell p {
+    font-size: 12px;
+  }
+  
+  .status-select {
+    padding: 0.4rem 0.8rem;
+    font-size: 11px;
+  }
+  
+  .priority-badge {
+    font-size: 10px;
+    padding: 0.2rem 0.6rem;
+  }
+  
+  .icon-btn-sm i {
+    font-size: 16px;
+  }
+}
+
+/* Animation for filter changes */
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbar Styling for table container */
+.tasks-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tasks-table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.tasks-table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.tasks-table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Hover effect for table rows */
+.tasks-table tbody tr {
+  transition: all 0.2s;
+}
+
+.tasks-table tbody tr:hover {
+  background: #f8fafc;
+  transform: translateX(4px);
+}
+
+/* Status select focus state */
+.status-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(4, 56, 115, 0.2);
+}
+
+/* Loading state (optional) */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

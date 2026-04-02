@@ -1,26 +1,24 @@
-// dashboard.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth';
-import { TaskService } from '../../services/task';
 import { User } from '../../Model/user';
-import { Task } from '../../Model/task';
+import { Task, TaskCreate } from '../../Model/task';
 import { Subscription } from 'rxjs';
-import { TaskListComponent } from '../task-list/task-list';
-import { TaskFormComponent } from '../taskform/taskform';
+import { TaskService } from '../../services/task';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TaskListComponent, TaskFormComponent],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   tasks: Task[] = [];
+  filteredTasks: Task[] = []; // Add this for filtered tasks
   private userSubscription?: Subscription;
   isMini = false;
   
@@ -35,13 +33,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentView = 'dashboard';
   showNotifications = false;
   showUserMenu = false;
-  notificationsCount = 3;
+  notificationsCount = 0;
+  showTaskModal = false;
+  editingTask: Task | null = null;
+  
+  // Filters - Add these properties
+  filterStatus = 'all';
+  searchTerm = '';
+  
+  taskForm: TaskCreate = {
+    title: '',
+    description: '',
+    userId: 0,
+    status: 'pending',
+    dueDate: undefined,
+    priority: 'medium'
+  };
   
   // Sidebar menu items
   menuItems = [
     { path: 'dashboard', name: 'Dashboard', icon: 'dashboard', active: true },
     { path: 'tasks', name: 'My Tasks', icon: 'assignment', active: false },
-    { path: 'create-task', name: 'Create Task', icon: 'add', active: false },
     { path: 'profile', name: 'Profile', icon: 'person', active: false }
   ];
 
@@ -53,22 +65,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to user changes
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       if (!user) {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
+      } else {
+        this.loadTasks();
       }
     });
     
-    // Check for view in query params
     this.route.queryParams.subscribe(params => {
       if (params['view']) {
         this.setView(params['view']);
       }
     });
-    
-    this.loadTasks();
   }
 
   ngOnDestroy(): void {
@@ -78,10 +88,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadTasks(): void {
-    this.taskService.getTasks().subscribe({
+    this.taskService.getMyTasks().subscribe({
       next: (tasks) => {
         this.tasks = tasks;
+        this.filteredTasks = [...tasks]; // Initialize filtered tasks
         this.updateStatistics();
+        this.applyFilters(); // Apply any existing filters
       },
       error: (error) => console.error('Error loading tasks:', error)
     });
@@ -97,18 +109,82 @@ export class DashboardComponent implements OnInit, OnDestroy {
       : 0;
   }
 
+  // Add filter methods
+  applyFilters(): void {
+    this.filteredTasks = this.tasks.filter(task => {
+      let matches = true;
+      
+      if (this.filterStatus !== 'all' && task.status !== this.filterStatus) {
+        matches = false;
+      }
+      
+      if (this.searchTerm && !task.title.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
+          !task.description.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+        matches = false;
+      }
+      
+      return matches;
+    });
+  }
+
+  filterTasks(): void {
+    this.applyFilters();
+  }
+
   setView(view: string): void {
     this.currentView = view;
     this.menuItems.forEach(item => {
       item.active = item.path === view;
     });
     
-    // Update URL without reloading
+    // Reset filters when switching to tasks view
+    if (view === 'tasks') {
+      this.filterStatus = 'all';
+      this.searchTerm = '';
+      this.applyFilters();
+    }
+    
+    if (view === 'create-task') {
+      this.openCreateTaskModal();
+    }
+    
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { view: view },
       queryParamsHandling: 'merge'
     });
+  }
+
+  openCreateTaskModal(): void {
+    this.editingTask = null;
+    this.taskForm = {
+      title: '',
+      description: '',
+      userId: this.currentUser?.id || 0,
+      status: 'pending',
+      dueDate: undefined,
+      priority: 'medium'
+    };
+    this.showTaskModal = true;
+  }
+
+
+  updateTaskStatus(task: Task, status: string): void {
+    this.taskService.updateTaskStatus(task.id, status as any).subscribe({
+      next: () => {
+        this.loadTasks();
+        alert('Task status updated to ' + this.getStatusText(status));
+      },
+      error: (error) => console.error('Error updating task status:', error)
+    });
+  }
+  
+  closeTaskModal(): void {
+    this.showTaskModal = false;
+    this.editingTask = null;
+    if (this.currentView === 'create-task') {
+      this.setView('tasks');
+    }
   }
 
   logout(): void {
@@ -140,7 +216,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     switch(this.currentView) {
       case 'dashboard': return 'Dashboard';
       case 'tasks': return 'My Tasks';
-      case 'create-task': return 'Create Task';
       case 'profile': return 'Profile';
       default: return 'Dashboard';
     }
@@ -172,9 +247,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
       case 'pending': return 'Pending';
       default: return status;
     }
-  }
-
-  editTask(taskId: number): void {
-    this.router.navigate(['/user/dashboard/edit-task', taskId]);
   }
 }

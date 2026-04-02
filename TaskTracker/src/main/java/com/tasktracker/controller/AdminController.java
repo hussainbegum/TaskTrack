@@ -1,13 +1,17 @@
 package com.tasktracker.controller;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,34 +24,76 @@ import com.tasktracker.service.AdminService;
 @RequestMapping("/admin")
 @CrossOrigin(origins="http://localhost:4200")
 public class AdminController {
-	 @Autowired
-	    private AdminService adminService;
+    @Autowired
+    private AdminService adminService;
 
-	    // get all users
-	    @GetMapping("/users")
-	    public List<User> getUsers(){
-	        return adminService.getAllUsers();
-	    }
+    // User Management
+    @GetMapping("/users")
+    public List<User> getUsers(){
+        return adminService.getAllUsers();
+    }
 
-	    // create user
-	    @PostMapping("/users")
-	    public User createUser(@RequestBody User user){
-	        return adminService.createUser(user);
-	    }
+    @PostMapping("/users")
+    public User createUser(@RequestBody User user){
+        System.out.println("Creating user: " + user.getEmail());
+        return adminService.createUser(user);
+    }
 
-	    // delete user
-	    @DeleteMapping("/users/{id}")
-	    public String deleteUser(@PathVariable Long id){
-	        adminService.deleteUser(id);
-	        return "User Deleted";
-	    }
+    @PutMapping("/users/{id}")
+    public User updateUser(@PathVariable Long id, @RequestBody User user){
+        user.setId(id);
+        return adminService.updateUser(user);
+    }
 
-	    // get tasks of specific user
-	    @GetMapping("/users/{id}/tasks")
-	    public List<Task> getUserTasks(@PathVariable Long id){
-	        return adminService.getUserTasks(id);
-	    }
+    @DeleteMapping("/users/{id}")
+    public String deleteUser(@PathVariable Long id){
+        adminService.deleteUser(id);
+        return "User Deleted";
+    }
 
-	}
+    @GetMapping("/users/{id}/tasks")
+    public List<Task> getUserTasks(@PathVariable Long id){
+        return adminService.getUserTasks(id);
+    }
 
+    // Task Management
+    @GetMapping("/tasks")
+    public List<Task> getAllTasks(){
+        return adminService.getAllTasks();
+    }
 
+    @PostMapping("/tasks")
+    public Task createTask(@RequestBody Task task){
+        System.out.println("Creating task: " + task.getTitle() + " for userId: " + task.getUserId());
+        return adminService.createTask(task);
+    }
+
+    @PutMapping("/tasks/{id}")
+    public Task updateTask(@PathVariable Long id, @RequestBody Task task){
+        System.out.println("Updating task ID: " + id);
+        System.out.println("Received update data: " + task);
+        task.setId(id);
+        return adminService.updateTask(task);
+    }
+    
+    @PatchMapping("/tasks/{id}/status")
+    public Task updateTaskStatus(@PathVariable Long id, @RequestBody Map<String, String> statusUpdate) {
+        System.out.println("Updating task status for ID: " + id);
+        String newStatus = statusUpdate.get("status");
+        System.out.println("New status: " + newStatus);
+        
+        Task task = adminService.getTaskById(id);
+        if (task != null) {
+            task.setStatus(newStatus);
+            task.setUpdatedAt(new Date());
+            return adminService.updateTask(task);
+        }
+        return null;
+    }
+
+    @DeleteMapping("/tasks/{id}")
+    public String deleteTask(@PathVariable Long id){
+        adminService.deleteTask(id);
+        return "Task Deleted";
+    }
+}

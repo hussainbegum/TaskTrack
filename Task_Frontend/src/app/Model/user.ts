@@ -6,6 +6,8 @@ export interface User {
   role?: 'USER' | 'ADMIN';
   createdAt?: Date;
   updatedAt?: Date;
+  taskCount?: number;
+  completedTasks?: number; 
 }
 
 export interface UserLogin {

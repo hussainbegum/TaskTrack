@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../Model/user';
-import { Task } from '../Model/task';
+import { Task, TaskCreate, TaskUpdate } from '../Model/task';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +12,7 @@ export class AdminService {
 
   constructor(private http: HttpClient) {}
 
+  // User Management
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users`);
   }
@@ -20,11 +21,36 @@ export class AdminService {
     return this.http.post<User>(`${this.apiUrl}/users`, user);
   }
 
-  deleteUser(id: number): Observable<string> {
-    return this.http.delete<string>(`${this.apiUrl}/users/${id}`);
+  updateUser(id: number, user: User): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/users/${id}`, user);
+  }
+
+  deleteUser(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/users/${id}`, { responseType: 'text' });
   }
 
   getUserTasks(userId: number): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.apiUrl}/users/${userId}/tasks`);
+  }
+
+  // Task Management
+  getAllTasks(): Observable<Task[]> {
+    return this.http.get<Task[]>(`${this.apiUrl}/tasks`);
+  }
+
+  createTask(task: TaskCreate): Observable<Task> {
+    return this.http.post<Task>(`${this.apiUrl}/tasks`, task);
+  }
+
+  updateTask(id: number, task: TaskUpdate): Observable<Task> {
+    return this.http.put<Task>(`${this.apiUrl}/tasks/${id}`, task);
+  }
+
+  updateTaskStatus(id: number, status: string): Observable<Task> {
+    return this.http.patch<Task>(`${this.apiUrl}/tasks/${id}/status`, { status });
+  } 
+
+  deleteTask(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/tasks/${id}`, { responseType: 'text' });
   }
 }

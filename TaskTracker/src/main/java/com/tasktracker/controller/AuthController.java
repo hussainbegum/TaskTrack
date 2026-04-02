@@ -33,7 +33,7 @@ public class AuthController {
     // Signup
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody User user) {
-        // Check if user already exists
+    	
         if (repo.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
         }

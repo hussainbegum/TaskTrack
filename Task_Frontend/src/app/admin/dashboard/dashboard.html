@@ -4,8 +4,7 @@
   <aside class="sidebar" [class.sidebar-collapsed]="isMini">
     <div class="sidebar-header">
       <div class="logo">
-        <div class="logo-icon">👑</div>
-        <div class="logo-text" *ngIf="!isMini">AdminFlow</div>
+        <div class="logo-text" *ngIf="!isMini">Hey Admin</div>
       </div>
       <button class="toggle-btn" (click)="toggleSidebar()">
         <i class="material-icons">{{ isMini ? 'chevron_right' : 'chevron_left' }}</i>
@@ -217,8 +216,9 @@
                 <div class="task-details">
                   <h4>{{ task.title }}</h4>
                   <div class="task-meta">
-                    <span><i class="material-icons">person</i> {{ getAssignedUserName(task.assignedTo) }}</span>
+                    <span><i class="material-icons">person</i> {{ getAssignedUserName(task.userId) }}</span>
                     <span><i class="material-icons">schedule</i> {{ task.createdAt | date:'MMM d, yyyy' }}</span>
+                    <span *ngIf="task.dueDate"><i class="material-icons">event</i> Due: {{ task.dueDate | date:'MMM d, yyyy' }}</span>
                     <span class="status-badge" [ngClass]="task.status">{{ getStatusText(task.status) }}</span>
                   </div>
                 </div>
@@ -345,25 +345,35 @@
 
         <!-- Task Filters -->
         <div class="task-filters">
-          <div class="filter-group">
-            <label>Status</label>
-            <select [(ngModel)]="taskFilterStatus" (change)="filterTasks()">
-              <option value="all">All Tasks</option>
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
-            </select>
+          <!-- Left Group: Status and Assigned To -->
+          <div class="filter-group-left">
+            <div class="filter-group">
+              <label>Status</label>
+              <select [(ngModel)]="taskFilterStatus" (change)="filterTasks()">
+                <option value="all">All Tasks</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label>Assigned To</label>
+              <select [(ngModel)]="taskFilterUser" (change)="filterTasks()">
+                <option value="all">All Users</option>
+                <option *ngFor="let user of users" [value]="user.id">{{ user.name }}</option>
+              </select>
+            </div>
           </div>
-          <div class="filter-group">
-            <label>Assigned To</label>
-            <select [(ngModel)]="taskFilterUser" (change)="filterTasks()">
-              <option value="all">All Users</option>
-              <option *ngFor="let user of users" [value]="user.id">{{ user.name }}</option>
-            </select>
-          </div>
-          <div class="filter-group search-filter">
-            <i class="material-icons">search</i>
-            <input type="text" placeholder="Search tasks..." [(ngModel)]="taskSearchTerm" (input)="filterTasks()">
+          
+          <!-- Right Group: Search -->
+          <div class="filter-group-right">
+            <div class="filter-group search-filter">
+              <label>Search</label>
+              <i class="material-icons">search</i>
+              <input type="text" placeholder="Search tasks by title or description..." 
+                    [(ngModel)]="taskSearchTerm" (input)="filterTasks()">
+            </div>
           </div>
         </div>
 
@@ -384,18 +394,18 @@
                 <td>
                   <div class="task-cell">
                     <strong>{{ task.title }}</strong>
-                    <p>{{ task.description | slice:0:60 }}{{ task.description.length > 60 ? '...' : '' }}</p>
+                    <p>{{ (task.description ) | slice:0:60 }}{{ (task.description || '').length > 60 ? '...' : '' }}</p>
                   </div>
                 </td>
                 <td>
                   <div class="assigned-user">
-                    <ng-container *ngIf="getUserById(task.assignedTo) as assignedUser">
+                    <ng-container *ngIf="getUserById(task.userId) as assignedUser">
                       <div class="user-avatar-xs" [style.background]="getUserAvatarColor(assignedUser)">
                         {{ assignedUser.name.charAt(0) || '?' }}
                       </div>
                       <span>{{ assignedUser.name }}</span>
                     </ng-container>
-                    <ng-container *ngIf="!getUserById(task.assignedTo)">
+                    <ng-container *ngIf="!getUserById(task.userId)">
                       <div class="user-avatar-xs" style="background: #94a3b8;">
                         ?
                       </div>
@@ -460,8 +470,8 @@
       <div class="form-group">
         <label>Role</label>
         <select [(ngModel)]="userForm.role">
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
+          <option value="USER">USER</option>
+          <option value="ADMIN">ADMIN</option>
         </select>
       </div>
     </div>
@@ -491,7 +501,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>Assign To *</label>
-          <select [(ngModel)]="taskForm.assignedTo">
+          <select [(ngModel)]="taskForm.userId">
             <option [value]="null">Select a user</option>
             <option *ngFor="let user of users" [value]="user.id">{{ user.name }} ({{ user.email }})</option>
           </select>
