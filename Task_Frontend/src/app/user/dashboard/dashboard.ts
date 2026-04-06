@@ -7,7 +7,7 @@ import { User } from '../../Model/user';
 import { Task, TaskCreate } from '../../Model/task';
 import { Subscription } from 'rxjs';
 import { TaskService } from '../../services/task';
-import { ToastrService } from 'ngx-toastr';  // ✅ Add this import
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,14 +23,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private userSubscription?: Subscription;
   isMini = false;
   
-  // Statistics
   totalTasks = 0;
   completedTasks = 0;
   pendingTasks = 0;
   inProgressTasks = 0;
   completionRate = 0;
   
-  // UI State
   currentView = 'dashboard';
   showNotifications = false;
   showUserMenu = false;
@@ -38,7 +36,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showTaskModal = false;
   editingTask: Task | null = null;
   
-  // Filters
   filterStatus = 'all';
   searchTerm = '';
   
@@ -51,7 +48,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     priority: 'medium'
   };
   
-  // Sidebar menu items
   menuItems = [
     { path: 'dashboard', name: 'Dashboard', icon: 'dashboard', active: true },
     { path: 'tasks', name: 'My Tasks', icon: 'assignment', active: false },
@@ -63,7 +59,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private taskService: TaskService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastr: ToastrService  // ✅ Add this
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -172,7 +168,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.taskService.updateTaskStatus(task.id, status as any).subscribe({
       next: () => {
         this.loadTasks();
-        this.toastr.success('Task status updated to ' + this.getStatusText(status));  // ✅ Changed from alert
+        this.toastr.success('Task status updated to ' + this.getStatusText(status));
       },
       error: (error) => console.error('Error updating task status:', error)
     });
@@ -207,7 +203,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   getGreeting(): string {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
+    if (hour < 16) return 'Good afternoon';
     return 'Good evening';
   }
 

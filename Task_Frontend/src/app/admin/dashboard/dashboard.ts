@@ -34,6 +34,7 @@ export class AdminDashboardComponent implements OnInit {
   taskFilterUser = 'all';
   taskSearchTerm = '';
 
+  // null = not yet loaded from backend, number = real value
   totalUsers: number | null = null;
   totalTasks: number | null = null;
   completedTasks: number | null = null;
@@ -43,6 +44,12 @@ export class AdminDashboardComponent implements OnInit {
 
   usersLoaded = false;
   tasksLoaded = false;
+
+  usersCurrentPage = 1;
+  usersPageSize = 5;
+
+  tasksCurrentPage = 1;
+  tasksPageSize = 5;
 
   userGrowthRate = 12;
   taskGrowthRate = 18;
@@ -139,6 +146,44 @@ export class AdminDashboardComponent implements OnInit {
 
   rateDisplay(value: number | null): string {
     return value === null ? '—' : `${value}%`;
+  }
+
+  // ── Users Pagination ──────────────────────────────────────────────────────
+  get pagedUsers(): User[] {
+    const start = (this.usersCurrentPage - 1) * this.usersPageSize;
+    return this.users.slice(start, start + this.usersPageSize);
+  }
+
+  get usersTotalPages(): number {
+    return Math.ceil(this.users.length / this.usersPageSize) || 1;
+  }
+
+  get usersPageNumbers(): number[] {
+    return Array.from({ length: this.usersTotalPages }, (_, i) => i + 1);
+  }
+
+  setUsersPage(page: number): void {
+    if (page < 1 || page > this.usersTotalPages) return;
+    this.usersCurrentPage = page;
+  }
+
+  // ── Tasks Pagination ──────────────────────────────────────────────────────
+  get pagedTasks(): Task[] {
+    const start = (this.tasksCurrentPage - 1) * this.tasksPageSize;
+    return this.filteredTasks.slice(start, start + this.tasksPageSize);
+  }
+
+  get tasksTotalPages(): number {
+    return Math.ceil(this.filteredTasks.length / this.tasksPageSize) || 1;
+  }
+
+  get tasksPageNumbers(): number[] {
+    return Array.from({ length: this.tasksTotalPages }, (_, i) => i + 1);
+  }
+
+  setTasksPage(page: number): void {
+    if (page < 1 || page > this.tasksTotalPages) return;
+    this.tasksCurrentPage = page;
   }
 
   private initNotifications(): void {
@@ -464,6 +509,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   filterTasks(): void {
+    this.tasksCurrentPage = 1;
     this.filteredTasks = this.tasks.filter(task => {
       if (this.taskFilterStatus !== 'all' && task.status !== this.taskFilterStatus) return false;
       if (this.taskFilterUser !== 'all' && task.userId !== +this.taskFilterUser) return false;

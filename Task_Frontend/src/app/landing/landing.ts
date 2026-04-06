@@ -39,7 +39,6 @@ export class LandingComponent {
 
   onWatchDemo() {
     console.log('Watch Demo clicked');
-    // You can open a modal or navigate to demo page
     alert('Demo video coming soon!');
   }
 
@@ -81,7 +80,6 @@ export class LandingComponent {
         alert('Demo coming soon!');
         break;
       default:
-        // Handle other navigation
         break;
     }
   }

@@ -850,7 +850,7 @@
 
 /* Status Select Dropdown */
 .status-select {
-  padding: 0.5rem 1rem;
+  padding: 2px 4px;
   border-radius: 20px;
   border: none;
   font-size: 12px;

@@ -41,7 +41,7 @@
           <a href="javascript:void(0)" class="forgot-link" (click)="onForgotPassword()">Forgot password?</a>
         </div>
 
-        <button type="submit" class="btn btn-login w-100 mb-2" [disabled]="loading || loginForm.invalid">
+        <button type="submit" class="btn btn-login w-100 mb-4" [disabled]="loading || loginForm.invalid">
           <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
           {{ loading ? 'Signing in...' : 'Login' }}
         </button>

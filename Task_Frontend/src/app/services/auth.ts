@@ -49,7 +49,6 @@ export class AuthService {
     const role = localStorage.getItem(this.ROLE_KEY);
     const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
     
-    // Check if token is expired
     if (tokenExpiry && this.isTokenExpired(tokenExpiry)) {
       console.log('Token expired on load');
       this.clearAllStorage();
@@ -121,14 +120,11 @@ export class AuthService {
 
   private handleAuthResponse(response: AuthResponse): void {
     if (typeof window !== 'undefined') {
-      // Store token and role
       localStorage.setItem(this.TOKEN_KEY, response.token);
       localStorage.setItem(this.ROLE_KEY, response.role);
       
-      // Set session expiration (1 hour from now)
       this.setSessionExpiry();
       
-      // Create user object
       const user: User = {
         id: 0,
         name: response.username,
@@ -141,7 +137,6 @@ export class AuthService {
       console.log('User stored, role:', response.role);
       console.log('Session will expire at:', new Date(Date.now() + this.SESSION_DURATION).toLocaleString());
       
-      // Force navigation after a small delay to ensure storage is complete
       setTimeout(() => {
         if (response.role === 'ADMIN') {
           console.log('Navigating to admin dashboard');
@@ -177,8 +172,6 @@ export class AuthService {
     this.clearAllStorage();
     this.currentUserSubject.next(null);
     console.log(message);
-    // You can show a toast message here if you have ToastrService injected
-    // this.toastr.warning(message, 'Session Expired');
     this.router.navigate(['/auth/login'], { queryParams: { expired: 'true' } });
   }
 
@@ -190,7 +183,6 @@ export class AuthService {
     if (token && tokenExpiry && !this.isTokenExpired(tokenExpiry)) {
       return token;
     } else if (token && tokenExpiry && this.isTokenExpired(tokenExpiry)) {
-      // ✅ Just clear storage, don't navigate (interceptor handles this)
       this.clearAllStorage();
       return null;
     }
@@ -266,8 +258,7 @@ export class AuthService {
     
     return throwError(() => new Error(errorMessage));
   }
- 
-// Forgot Password API
+
 forgotPassword(email: string): Observable<any> {
   return this.http.post(`${this.apiUrl}/forgot-password`, { email })
   .pipe(
@@ -275,7 +266,6 @@ forgotPassword(email: string): Observable<any> {
   );
 }
 
-// Reset Password API
 resetPassword(data: any): Observable<any> {
   return this.http.post(`${this.apiUrl}/reset-password`, data)
   .pipe(
