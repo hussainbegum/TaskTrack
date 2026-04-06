@@ -190,24 +190,6 @@
   margin-bottom: 0;
 }
 
-.register-section {
-  font-size: 14px;
-  padding-top: 8px;
-}
-
-.register-link {
-  color: #0769e9;
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.register-link:hover {
-  color:rgba(57, 73, 171, 1);
-  text-decoration: underline;
-}
-
 .alert-danger {
   background: linear-gradient(135deg, #fee2e2 0%, #ffe4e4 100%);
   border-radius: 12px;

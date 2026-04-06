@@ -15,12 +15,6 @@ export interface UserLogin {
   password: string;
 }
 
-export interface UserRegister {
-  name: string;
-  email: string;
-  password: string;
-  role?: 'USER' | 'ADMIN';
-}
 
 export interface AuthResponse {
   token: string;

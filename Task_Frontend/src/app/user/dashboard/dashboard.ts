@@ -7,6 +7,7 @@ import { User } from '../../Model/user';
 import { Task, TaskCreate } from '../../Model/task';
 import { Subscription } from 'rxjs';
 import { TaskService } from '../../services/task';
+import { ToastrService } from 'ngx-toastr';  // ✅ Add this import
 
 @Component({
   selector: 'app-dashboard',
@@ -18,7 +19,7 @@ import { TaskService } from '../../services/task';
 export class DashboardComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   tasks: Task[] = [];
-  filteredTasks: Task[] = []; // Add this for filtered tasks
+  filteredTasks: Task[] = [];
   private userSubscription?: Subscription;
   isMini = false;
   
@@ -37,7 +38,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showTaskModal = false;
   editingTask: Task | null = null;
   
-  // Filters - Add these properties
+  // Filters
   filterStatus = 'all';
   searchTerm = '';
   
@@ -61,7 +62,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private taskService: TaskService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastr: ToastrService  // ✅ Add this
   ) {}
 
   ngOnInit(): void {
@@ -91,9 +93,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.taskService.getMyTasks().subscribe({
       next: (tasks) => {
         this.tasks = tasks;
-        this.filteredTasks = [...tasks]; // Initialize filtered tasks
+        this.filteredTasks = [...tasks];
         this.updateStatistics();
-        this.applyFilters(); // Apply any existing filters
+        this.applyFilters();
       },
       error: (error) => console.error('Error loading tasks:', error)
     });
@@ -109,7 +111,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       : 0;
   }
 
-  // Add filter methods
   applyFilters(): void {
     this.filteredTasks = this.tasks.filter(task => {
       let matches = true;
@@ -137,7 +138,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       item.active = item.path === view;
     });
     
-    // Reset filters when switching to tasks view
     if (view === 'tasks') {
       this.filterStatus = 'all';
       this.searchTerm = '';
@@ -168,12 +168,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.showTaskModal = true;
   }
 
-
   updateTaskStatus(task: Task, status: string): void {
     this.taskService.updateTaskStatus(task.id, status as any).subscribe({
       next: () => {
         this.loadTasks();
-        alert('Task status updated to ' + this.getStatusText(status));
+        this.toastr.success('Task status updated to ' + this.getStatusText(status));  // ✅ Changed from alert
       },
       error: (error) => console.error('Error updating task status:', error)
     });

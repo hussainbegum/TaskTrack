@@ -32,14 +32,9 @@ export class LandingComponent {
     this.router.navigate(['/auth/login']);
   }
 
-  onSignup() {
-    console.log('Signup clicked');
-    this.router.navigate(['/auth/register']);
-  }
-
   onTryFree() {
     console.log('Start Free Trial clicked');
-    this.router.navigate(['/auth/register']);
+    this.router.navigate(['/auth/login']);
   }
 
   onWatchDemo() {
@@ -50,12 +45,12 @@ export class LandingComponent {
 
   onGetStarted() {
     console.log('Get Started clicked');
-    this.router.navigate(['/auth/register']);
+    this.router.navigate(['/auth/login']);
   }
 
   onTryNow() {
     console.log('Try Now clicked');
-    this.router.navigate(['/auth/register']);
+    this.router.navigate(['/auth/login']);
   }
 
   onLearnMore() {

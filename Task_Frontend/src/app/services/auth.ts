@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { User, UserLogin, UserRegister, AuthResponse } from '../Model/user';
+import { User, UserLogin, AuthResponse } from '../Model/user';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -53,7 +53,7 @@ export class AuthService {
     if (tokenExpiry && this.isTokenExpired(tokenExpiry)) {
       console.log('Token expired on load');
       this.clearAllStorage();
-      return; // ✅ Just clear, don't navigate
+      return;
     }
     
     if (token && userStr && role) {
@@ -61,10 +61,9 @@ export class AuthService {
         const user = JSON.parse(userStr);
         this.currentUserSubject.next(user);
         
-        // ✅ Only auto-navigate if NOT already on an auth page
         const currentPath = window.location.pathname;
         if (currentPath.startsWith('/auth/')) {
-          return; // User is on login/forgot/reset — don't redirect
+          return;
         }
         
         if (role === 'ADMIN') {
@@ -102,17 +101,10 @@ export class AuthService {
   private setSessionExpiry(): void {
     const expiryTime = Date.now() + this.SESSION_DURATION;
     localStorage.setItem(this.TOKEN_EXPIRY_KEY, expiryTime.toString());
-    
-    // Set a timeout to auto logout exactly at expiration
+  
     setTimeout(() => {
       this.checkSessionExpiration();
     }, this.SESSION_DURATION);
-  }
-
-  register(userData: UserRegister): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/signup`, userData).pipe(
-      catchError(this.handleError)
-    );
   }
 
   login(credentials: UserLogin): Observable<AuthResponse> {

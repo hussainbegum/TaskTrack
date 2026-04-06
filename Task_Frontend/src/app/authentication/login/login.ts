@@ -74,8 +74,4 @@ throw new Error('Method not implemented.');
     this.router.navigate(['/auth/forgot-password'])
     
   }
-
-  onRegistration(){
-    this.router.navigate(['/auth/register'])
-  }
 }

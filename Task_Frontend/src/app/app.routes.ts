@@ -19,13 +19,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./authentication/login/login').then(m => m.LoginComponent)
       },
-      {
-        path: 'register',
-        loadComponent: () =>
-          import('./authentication/register/register').then(m => m.RegisterComponent)
-      },
 
-      // ✅ Forgot Password
       {
         path: 'forgot-password',
         loadComponent: () =>
@@ -33,7 +27,6 @@ export const routes: Routes = [
           .then(m => m.ForgotPassword)
       },
 
-      // ✅ Reset Password
       {
         path: 'reset-password',
         loadComponent: () =>
