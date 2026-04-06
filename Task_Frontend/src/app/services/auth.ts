@@ -17,7 +17,7 @@ export class AuthService {
   private readonly USER_KEY = 'user';
   private readonly ROLE_KEY = 'role';
   private readonly TOKEN_EXPIRY_KEY = 'token_expiry';
-  private readonly SESSION_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+  private readonly SESSION_DURATION = 10 * 60 * 1000;
 
   private sessionCheckInterval: any;
 
@@ -80,10 +80,9 @@ export class AuthService {
 }
 
   private startSessionCheck(): void {
-    // Check session every minute
     this.sessionCheckInterval = setInterval(() => {
       this.checkSessionExpiration();
-    }, 60000); // Check every minute
+    }, 60000);
   }
 
   private checkSessionExpiration(): void {

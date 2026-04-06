@@ -23,7 +23,6 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-    // Generate Token with roles
     public String generateToken(String username, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", "ROLE_" + role);
@@ -38,13 +37,11 @@ public class JwtUtil {
                 .compact();
     }
 
-    // Extract Username
     public String extractUsername(String token) {
         Claims claims = extractAllClaims(token);
         return claims.getSubject();
     }
     
-    // Extract Role
     public String extractRole(String token) {
         Claims claims = extractAllClaims(token);
         return claims.get("role", String.class);

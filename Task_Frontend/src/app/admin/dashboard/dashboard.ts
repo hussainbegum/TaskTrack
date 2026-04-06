@@ -34,12 +34,15 @@ export class AdminDashboardComponent implements OnInit {
   taskFilterUser = 'all';
   taskSearchTerm = '';
 
-  totalUsers = 0;
-  totalTasks = 0;
-  completedTasks = 0;
-  pendingTasks = 0;
-  inProgressTasks = 0;
-  overallCompletionRate = 0;
+  totalUsers: number | null = null;
+  totalTasks: number | null = null;
+  completedTasks: number | null = null;
+  pendingTasks: number | null = null;
+  inProgressTasks: number | null = null;
+  overallCompletionRate: number | null = null;
+
+  usersLoaded = false;
+  tasksLoaded = false;
 
   userGrowthRate = 12;
   taskGrowthRate = 18;
@@ -95,6 +98,7 @@ export class AdminDashboardComponent implements OnInit {
     this.adminService.getAllUsers().subscribe({
       next: (users) => {
         this.users = users;
+        this.usersLoaded = true;
         this.updateStats();
       },
       error: () => this.toastr.error('Failed to load users', 'Error')
@@ -106,6 +110,7 @@ export class AdminDashboardComponent implements OnInit {
       next: (tasks) => {
         this.tasks = tasks;
         this.filteredTasks = [...tasks];
+        this.tasksLoaded = true;
         this.updateStats();
       },
       error: () => this.toastr.error('Failed to load tasks', 'Error')
@@ -113,14 +118,27 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   private updateStats(): void {
-    this.totalUsers = this.users.length;
-    this.totalTasks = this.tasks.length;
-    this.completedTasks = this.tasks.filter(t => t.status === 'completed').length;
-    this.inProgressTasks = this.tasks.filter(t => t.status === 'in-progress').length;
-    this.pendingTasks = this.tasks.filter(t => t.status === 'pending').length;
-    this.overallCompletionRate = this.totalTasks > 0
-      ? Math.round((this.completedTasks / this.totalTasks) * 100)
-      : 0;
+    if (this.usersLoaded) {
+      this.totalUsers = this.users.length;
+    }
+    if (this.tasksLoaded) {
+      this.totalTasks = this.tasks.length;
+      this.completedTasks = this.tasks.filter(t => t.status === 'completed').length;
+      this.inProgressTasks = this.tasks.filter(t => t.status === 'in-progress').length;
+      this.pendingTasks = this.tasks.filter(t => t.status === 'pending').length;
+      this.overallCompletionRate = this.totalTasks > 0
+        ? Math.round((this.completedTasks / this.totalTasks) * 100)
+        : 0;
+    }
+  }
+
+  // Returns '—' while loading, real number once backend responds
+  statDisplay(value: number | null): string {
+    return value === null ? '—' : value.toString();
+  }
+
+  rateDisplay(value: number | null): string {
+    return value === null ? '—' : `${value}%`;
   }
 
   private initNotifications(): void {
@@ -200,8 +218,6 @@ export class AdminDashboardComponent implements OnInit {
     };
   }
 
-  // ── User Management ──────────────────────────────────────────────────────────
-
   openCreateUserModal(): void {
     this.editingUser = null;
     this.userForm = { name: '', email: '', password: '', role: 'USER' };
@@ -225,11 +241,9 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
 
-    // Guard: prevent double-submit
     if (this.isSaving) return;
     this.isSaving = true;
 
-    // Capture BEFORE closeUserModal() wipes the form
     const userName = this.userForm.name;
 
     if (this.editingUser) {
@@ -312,8 +326,6 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  // ── Task Management ───────────────────────────────────────────────────────────
-
   openCreateTaskModal(): void {
     this.editingTask = null;
     this.taskForm = {
@@ -341,7 +353,7 @@ export class AdminDashboardComponent implements OnInit {
         description: task.description,
         userId: task.userId,
         status: task.status,
-        priority: task.priority || 'low',
+        priority: task.priority || 'medium',
         dueDate: task.dueDate
       };
       this.showTaskModal = true;
@@ -358,11 +370,9 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
 
-    // Guard: prevent double-submit
     if (this.isSaving) return;
     this.isSaving = true;
 
-    // Capture BEFORE closeTaskModal() wipes the form
     const taskTitle = this.taskForm.title;
 
     const data = {
@@ -504,15 +514,18 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   getCompletedPercentage(): number {
-    return this.totalTasks ? Math.round((this.completedTasks / this.totalTasks) * 100) : 0;
+    return (this.totalTasks && this.completedTasks != null)
+      ? Math.round((this.completedTasks / this.totalTasks) * 100) : 0;
   }
 
   getInProgressPercentage(): number {
-    return this.totalTasks ? Math.round((this.inProgressTasks / this.totalTasks) * 100) : 0;
+    return (this.totalTasks && this.inProgressTasks != null)
+      ? Math.round((this.inProgressTasks / this.totalTasks) * 100) : 0;
   }
 
   getPendingPercentage(): number {
-    return this.totalTasks ? Math.round((this.pendingTasks / this.totalTasks) * 100) : 0;
+    return (this.totalTasks && this.pendingTasks != null)
+      ? Math.round((this.pendingTasks / this.totalTasks) * 100) : 0;
   }
 
   private addNotification(message: string): void {
