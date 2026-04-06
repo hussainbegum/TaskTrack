@@ -12,9 +12,9 @@ import { AuthService } from '../../services/auth';
   imports: [CommonModule, ReactiveFormsModule, RouterModule]
 })
 export class LoginComponent {
-login() {
-throw new Error('Method not implemented.');
-}
+  login() {
+    throw new Error('Method not implemented.');
+  }
   loginForm: FormGroup;
   loading = false;
   errorMessage = '';
@@ -23,7 +23,6 @@ throw new Error('Method not implemented.');
     private router: Router,
     private authService: AuthService
   ) {
-    // Check if already logged in
     if (this.authService.isLoggedIn()) {
       const role = this.authService.getUserRole();
       if (role === 'ADMIN') {
@@ -72,6 +71,5 @@ throw new Error('Method not implemented.');
   }
   onForgotPassword(){
     this.router.navigate(['/auth/forgot-password'])
-    
   }
 }

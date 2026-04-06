@@ -1,6 +1,4 @@
-<!-- admin-dashboard.component.html -->
 <div class="dashboard">
-  <!-- Modern Sidebar -->
   <aside class="sidebar" [class.sidebar-collapsed]="isMini">
     <div class="sidebar-header">
       <div class="logo">
@@ -48,9 +46,7 @@
     </div>
   </aside>
 
-  <!-- Main Content -->
   <main class="main-content">
-    <!-- Modern Header -->
     <header class="header">
       <div class="header-left">
         <h1 class="page-title">{{ getPageTitle() }}</h1>
@@ -96,12 +92,8 @@
       </div>
     </header>
 
-    <!-- Dashboard Content -->
     <div class="content">
-
-      <!-- Dashboard Overview -->
       <div *ngIf="currentView === 'dashboard'" class="fade-in">
-        <!-- Welcome Banner -->
         <div class="welcome-banner">
           <div class="banner-content">
             <h2>{{ getGreeting() }}, Admin {{ currentAdmin?.name || 'User' }}! 👋</h2>
@@ -109,20 +101,19 @@
           </div>
           <div class="banner-stats">
             <div class="stat">
-              <div class="stat-value">{{ rateDisplay(overallCompletionRate) }}</div>
+              <div class="stat-value">{{ overallCompletionRate }}%</div>
               <div class="stat-label">Team Productivity</div>
             </div>
           </div>
         </div>
 
-        <!-- Stats Grid -->
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon total-users">
               <i class="material-icons">people</i>
             </div>
             <div class="stat-info">
-              <h3>{{ statDisplay(totalUsers) }}</h3>
+              <h3>{{ totalUsers }}</h3>
               <p>Total Users</p>
             </div>
             <div class="stat-trend positive">
@@ -136,7 +127,7 @@
               <i class="material-icons">assignment</i>
             </div>
             <div class="stat-info">
-              <h3>{{ statDisplay(totalTasks) }}</h3>
+              <h3>{{ totalTasks }}</h3>
               <p>Total Tasks</p>
             </div>
             <div class="stat-trend positive">
@@ -150,7 +141,7 @@
               <i class="material-icons">check_circle</i>
             </div>
             <div class="stat-info">
-              <h3>{{ statDisplay(completedTasks) }}</h3>
+              <h3>{{ completedTasks }}</h3>
               <p>Completed Tasks</p>
             </div>
             <div class="stat-trend positive">
@@ -164,7 +155,7 @@
               <i class="material-icons">pending_actions</i>
             </div>
             <div class="stat-info">
-              <h3>{{ statDisplay(pendingTasks) }}</h3>
+              <h3>{{ pendingTasks }}</h3>
               <p>Pending Tasks</p>
             </div>
             <div class="stat-trend negative">
@@ -174,9 +165,7 @@
           </div>
         </div>
 
-        <!-- Recent Users & Tasks Section -->
         <div class="two-column-grid">
-          <!-- Recent Users -->
           <div class="recent-users">
             <div class="section-header">
               <h3>Recent Users</h3>
@@ -203,7 +192,6 @@
             </div>
           </div>
 
-          <!-- Recent Tasks -->
           <div class="recent-tasks">
             <div class="section-header">
               <h3>Recent Tasks</h3>
@@ -237,7 +225,6 @@
           </div>
         </div>
 
-        <!-- Task Distribution Chart -->
         <div class="task-distribution">
           <div class="section-header">
             <h3>Task Status Distribution</h3>
@@ -268,7 +255,6 @@
         </div>
       </div>
 
-      <!-- Users Management View -->
       <div *ngIf="currentView === 'users'" class="fade-in">
         <div class="view-header">
           <h2>User Management</h2>
@@ -290,7 +276,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let user of users">
+              <tr *ngFor="let user of pagedUsers">
                 <td>
                   <div class="user-cell">
                     <div class="user-avatar-sm" [style.background]="getUserAvatarColor(user)">
@@ -333,9 +319,29 @@
             </tbody>
           </table>
         </div>
+
+        <div class="pagination-container" *ngIf="users.length > usersPageSize">
+          <div class="pagination-info">
+            Showing <strong>{{ (usersCurrentPage - 1) * usersPageSize + 1 }}–{{ usersCurrentPage * usersPageSize > users.length ? users.length : usersCurrentPage * usersPageSize }}</strong> of <strong>{{ users.length }}</strong> users
+          </div>
+          <div class="pagination-controls">
+            <button class="page-btn" (click)="setUsersPage(usersCurrentPage - 1)" [disabled]="usersCurrentPage === 1">
+              <i class="material-icons">chevron_left</i>
+            </button>
+            <button
+              *ngFor="let page of usersPageNumbers"
+              class="page-btn"
+              [class.active]="page === usersCurrentPage"
+              (click)="setUsersPage(page)">
+              {{ page }}
+            </button>
+            <button class="page-btn" (click)="setUsersPage(usersCurrentPage + 1)" [disabled]="usersCurrentPage === usersTotalPages">
+              <i class="material-icons">chevron_right</i>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- Tasks Management View -->
       <div *ngIf="currentView === 'tasks'" class="fade-in">
         <div class="view-header">
           <h2>Task Management</h2>
@@ -344,7 +350,6 @@
           </button>
         </div>
 
-        <!-- Task Filters -->
         <div class="task-filters">
           <div class="filter-group-left">
             <div class="filter-group">
@@ -389,7 +394,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let task of filteredTasks">
+              <tr *ngFor="let task of pagedTasks">
                 <td>
                   <div class="task-cell">
                     <strong>{{ task.title }}</strong>
@@ -439,13 +444,33 @@
             </tbody>
           </table>
         </div>
+
+        <div class="pagination-container" *ngIf="filteredTasks.length > tasksPageSize">
+          <div class="pagination-info">
+            Showing <strong>{{ (tasksCurrentPage - 1) * tasksPageSize + 1 }}–{{ tasksCurrentPage * tasksPageSize > filteredTasks.length ? filteredTasks.length : tasksCurrentPage * tasksPageSize }}</strong> of <strong>{{ filteredTasks.length }}</strong> tasks
+          </div>
+          <div class="pagination-controls">
+            <button class="page-btn" (click)="setTasksPage(tasksCurrentPage - 1)" [disabled]="tasksCurrentPage === 1">
+              <i class="material-icons">chevron_left</i>
+            </button>
+            <button
+              *ngFor="let page of tasksPageNumbers"
+              class="page-btn"
+              [class.active]="page === tasksCurrentPage"
+              (click)="setTasksPage(page)">
+              {{ page }}
+            </button>
+            <button class="page-btn" (click)="setTasksPage(tasksCurrentPage + 1)" [disabled]="tasksCurrentPage === tasksTotalPages">
+              <i class="material-icons">chevron_right</i>
+            </button>
+          </div>
+        </div>
       </div>
 
     </div>
   </main>
 </div>
 
-<!-- Create/Edit User Modal -->
 <div class="modal-overlay" *ngIf="showUserModal" (click)="closeUserModal()">
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
@@ -483,7 +508,6 @@
   </div>
 </div>
 
-<!-- Create/Edit Task Modal -->
 <div class="modal-overlay" *ngIf="showTaskModal" (click)="closeTaskModal()">
   <div class="modal-container modal-large" (click)="$event.stopPropagation()">
     <div class="modal-header">
@@ -504,7 +528,7 @@
           <label>Assign To *</label>
           <select [(ngModel)]="taskForm.userId">
             <option [value]="0">Select a user</option>
-            <option *ngFor="let user of regularUsers" [value]="user.id">{{ user.name }}</option>
+            <option *ngFor="let user of regularUsers" [value]="user.id">{{ user.name }} ({{ user.email }})</option>
           </select>
         </div>
         <div class="form-group">
@@ -531,7 +555,7 @@
         </div>
       </div>
     </div>
-    <!-- ✅ FIX: isSaving disabled added to BOTH buttons, spinner on Create/Update -->
+
     <div class="modal-footer">
       <button class="btn-secondary" (click)="closeTaskModal()" [disabled]="isSaving">Cancel</button>
       <button class="btn-primary" (click)="saveTask()" [disabled]="isSaving">

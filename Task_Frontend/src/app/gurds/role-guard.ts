@@ -23,8 +23,6 @@ export class RoleGuard {
     if (userRole === expectedRole) {
       return true;
     }
-    
-    // Redirect based on role
     if (userRole === 'ADMIN') {
       this.router.navigate(['/admin/dashboard']);
     } else if (userRole === 'USER') {
