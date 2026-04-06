@@ -68,8 +68,6 @@ export class ResetPassword {
 
   resetPassword() {
     const otp = this.getFullOtp();
-    
-    // Validation with toastr instead of alert
     if (otp.length !== 6) {
       this.toastr.warning('Please enter complete 6-digit OTP', 'Incomplete OTP');
       return;
@@ -101,13 +99,11 @@ export class ResetPassword {
     this.authService.resetPassword(data).subscribe({
       next: () => {
         this.loading = false;
-        // ✅ Success toastr
         this.toastr.success('Password updated successfully! Please login with your new password.', 'Success!');
         this.router.navigate(['/auth/login']);
       },
       error: (err) => {
         this.loading = false;
-        // ✅ Error toastr
         const errorMsg = err.error?.message || err.message || "Invalid OTP or expired. Please try again.";
         this.toastr.error(errorMsg, 'Reset Failed');
       }
