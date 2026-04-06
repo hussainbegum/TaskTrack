@@ -4,21 +4,30 @@ import { AuthService } from '../services/auth';
 
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+
+  // ✅ Skip token for AUTH APIs and OPTIONS requests
   
-  // Skip adding token for OPTIONS requests (preflight)
-  if (req.method === 'OPTIONS') {
-    return next(req);
-  }
-  
+
+  const isAuthApi = req.url.includes('/auth/forgot-password') ||
+                  req.url.includes('/auth/reset-password') ||
+                  req.url.includes('/auth/login') ||
+                  req.url.includes('/auth/signup');
+
+if (req.method === 'OPTIONS' || isAuthApi) {
+  console.log("Skipping token for:", req.url); // 👈 ADD THIS
+  return next(req);
+}
+
   const token = authService.getToken();
 
+  // ✅ Attach token only if present
   if (token) {
-    const cloned = req.clone({
+    const clonedRequest = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
       }
     });
-    return next(cloned);
+    return next(clonedRequest);
   }
 
   return next(req);

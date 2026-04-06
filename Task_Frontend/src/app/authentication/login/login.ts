@@ -12,6 +12,9 @@ import { AuthService } from '../../services/auth';
   imports: [CommonModule, ReactiveFormsModule, RouterModule]
 })
 export class LoginComponent {
+login() {
+throw new Error('Method not implemented.');
+}
   loginForm: FormGroup;
   loading = false;
   errorMessage = '';
@@ -68,7 +71,8 @@ export class LoginComponent {
     });
   }
   onForgotPassword(){
-    console.log("clicked forgotpass")
+    this.router.navigate(['/auth/forgot-password'])
+    
   }
 
   onRegistration(){

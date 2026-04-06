@@ -8,8 +8,8 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./landing/landing').then(m => m.LandingComponent)
   },
-  
-  { path: '', redirectTo: '/landing', pathMatch: 'full' },  
+
+  { path: '', redirectTo: '/landing', pathMatch: 'full' },
 
   {
     path: 'auth',
@@ -23,7 +23,24 @@ export const routes: Routes = [
         path: 'register',
         loadComponent: () =>
           import('./authentication/register/register').then(m => m.RegisterComponent)
+      },
+
+      // ✅ Forgot Password
+      {
+        path: 'forgot-password',
+        loadComponent: () =>
+          import('./components/forgot-password/forgot-password')
+          .then(m => m.ForgotPassword)
+      },
+
+      // ✅ Reset Password
+      {
+        path: 'reset-password',
+        loadComponent: () =>
+          import('./components/reset-password/reset-password')
+          .then(m => m.ResetPassword)
       }
+
     ]
   },
 

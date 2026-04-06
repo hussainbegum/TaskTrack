@@ -43,35 +43,41 @@ export class AuthService {
   }
 
   private loadStoredUser(): void {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem(this.TOKEN_KEY);
-      const userStr = localStorage.getItem(this.USER_KEY);
-      const role = localStorage.getItem(this.ROLE_KEY);
-      const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
-      
-      // Check if token is expired
-      if (tokenExpiry && this.isTokenExpired(tokenExpiry)) {
-        console.log('Token expired on load');
-        this.clearAllStorage();
-        return;
-      }
-      
-      if (token && userStr && role) {
-        try {
-          const user = JSON.parse(userStr);
-          this.currentUserSubject.next(user);
-          
-          if (role === 'ADMIN') {
-            this.router.navigate(['/admin/dashboard']);
-          } else if (role === 'USER') {
-            this.router.navigate(['/user/dashboard']);
-          }
-        } catch (e) {
-          this.clearAllStorage();
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    const userStr = localStorage.getItem(this.USER_KEY);
+    const role = localStorage.getItem(this.ROLE_KEY);
+    const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
+    
+    // Check if token is expired
+    if (tokenExpiry && this.isTokenExpired(tokenExpiry)) {
+      console.log('Token expired on load');
+      this.clearAllStorage();
+      return; // ✅ Just clear, don't navigate
+    }
+    
+    if (token && userStr && role) {
+      try {
+        const user = JSON.parse(userStr);
+        this.currentUserSubject.next(user);
+        
+        // ✅ Only auto-navigate if NOT already on an auth page
+        const currentPath = window.location.pathname;
+        if (currentPath.startsWith('/auth/')) {
+          return; // User is on login/forgot/reset — don't redirect
         }
+        
+        if (role === 'ADMIN') {
+          this.router.navigate(['/admin/dashboard']);
+        } else if (role === 'USER') {
+          this.router.navigate(['/user/dashboard']);
+        }
+      } catch (e) {
+        this.clearAllStorage();
       }
     }
   }
+}
 
   private startSessionCheck(): void {
     // Check session every minute
@@ -185,22 +191,21 @@ export class AuthService {
     this.router.navigate(['/auth/login'], { queryParams: { expired: 'true' } });
   }
 
-  getToken(): string | null {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem(this.TOKEN_KEY);
-      const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
-      
-      // Check if token exists and is not expired
-      if (token && tokenExpiry && !this.isTokenExpired(tokenExpiry)) {
-        return token;
-      } else if (token && tokenExpiry && this.isTokenExpired(tokenExpiry)) {
-        // Token expired, clear session
-        this.logoutWithMessage('Your session has expired. Please login again.');
-        return null;
-      }
+ getToken(): string | null {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
+    
+    if (token && tokenExpiry && !this.isTokenExpired(tokenExpiry)) {
+      return token;
+    } else if (token && tokenExpiry && this.isTokenExpired(tokenExpiry)) {
+      // ✅ Just clear storage, don't navigate (interceptor handles this)
+      this.clearAllStorage();
+      return null;
     }
-    return null;
   }
+  return null;
+}
 
   isAuthenticated(): boolean {
     const token = localStorage.getItem(this.TOKEN_KEY);
@@ -270,4 +275,21 @@ export class AuthService {
     
     return throwError(() => new Error(errorMessage));
   }
+ 
+// Forgot Password API
+forgotPassword(email: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/forgot-password`, { email })
+  .pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Reset Password API
+resetPassword(data: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/reset-password`, data)
+  .pipe(
+    catchError(this.handleError)
+  );
+}
+
 }
