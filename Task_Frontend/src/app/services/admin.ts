@@ -34,11 +34,15 @@ export class AdminService {
     return this.http.put<User>(`${this.apiUrl}/users/${id}`, user);
   }
 
-  deleteUser(id: number, newUserName: string): Observable<any> {
-    return this.http.request('delete', `${this.apiUrl}/users/${id}`, {
-    body: { newUserName },
-    responseType: 'text'
-  });
+ 
+
+deleteUser(userId: number, newUserName: string) {
+  return this.http.delete(
+    `${this.apiUrl}/users/${userId}`,
+    {
+      body: { newUserName }
+    }
+  );
 }
 
   

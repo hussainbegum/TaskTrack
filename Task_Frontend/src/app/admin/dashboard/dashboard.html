@@ -598,10 +598,14 @@
       to:
     </p>
 
-    <select [(ngModel)]="taskForm.userId">
-            <option [value]="0">Select a user</option>
-            <option *ngFor="let user of regularUsers" [value]="user.id">{{ user.name }}</option>
-    </select>
+    <select [(ngModel)]="selectedNewUserName">
+    <option value="">Select a user</option>
+    <option
+      *ngFor="let user of availableUsersForReassign"
+      [value]="user.name">
+      {{ user.name }}
+    </option>
+</select>
 
     <div class="modal-actions">
       <button (click)="confirmDeleteUser()">Confirm Delete</button>
