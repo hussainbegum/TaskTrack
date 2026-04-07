@@ -304,7 +304,7 @@
                     <button class="icon-btn-sm" (click)="editUser(user)" title="Edit User">
                       <i class="material-icons">edit</i>
                     </button>
-                    <button class="icon-btn-sm danger" (click)="deleteUser(user.id)" title="Delete User">
+                    <button class="icon-btn-sm danger" (click)="openDeletePopup(user)" title="Delete User">
                       <i class="material-icons">delete</i>
                     </button>
                   </div>
@@ -584,5 +584,33 @@
         <span *ngIf="!isSaving">{{ editingTask ? 'Update' : 'Create' }}</span>
       </button>
     </div>
+
+    <div class="modal-overlay" *ngIf="showDeletePopup">
+  <div class="modal-box">
+    <h3>Reassign Tasks</h3>
+
+    <p>
+      Reassign tasks from
+      <strong>{{ userToDeleteName }}</strong>
+      to:
+    </p>
+
+    <select [(ngModel)]="selectedNewUserName">
+      <option value="">Select User</option>
+
+      <option
+        *ngFor="let user of availableUsersForReassign"
+        [value]="user.name"
+      >
+        {{ user.name }}
+      </option>
+    </select>
+
+    <div class="modal-actions">
+      <button (click)="confirmDeleteUser()">Confirm Delete</button>
+      <button (click)="closeDeletePopup()">Cancel</button>
+    </div>
+    </div>
+</div>
   </div>
 </div>

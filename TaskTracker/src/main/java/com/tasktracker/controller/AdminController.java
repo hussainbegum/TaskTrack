@@ -54,9 +54,15 @@ public class AdminController {
     }
 
     @DeleteMapping("/users/{id}")
-    public String deleteUser(@PathVariable Long id){
-        adminService.deleteUser(id);
-        return "User Deleted";
+    public String deleteUser(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request) {
+
+        String newUserName = request.get("newUserName");
+
+        adminService.deleteUser(id, newUserName);
+
+        return "User deleted and tasks reassigned successfully";
     }
 
     @GetMapping("/users/{id}/tasks")

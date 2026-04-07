@@ -34,9 +34,14 @@ export class AdminService {
     return this.http.put<User>(`${this.apiUrl}/users/${id}`, user);
   }
 
-  deleteUser(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/users/${id}`, { responseType: 'text' });
-  }
+  deleteUser(id: number, newUserName: string): Observable<any> {
+    return this.http.request('delete', `${this.apiUrl}/users/${id}`, {
+    body: { newUserName },
+    responseType: 'text'
+  });
+}
+
+  
 
   getUserTasks(userId: number): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.apiUrl}/users/${userId}/tasks`);

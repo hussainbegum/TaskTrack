@@ -71,6 +71,15 @@ usersPageNumbers: number[] = [];
   showTaskModal = false;
   editingUser: User | null = null;
   editingTask: Task | null = null;
+  
+  showDeleteUserModal = false;
+userToDelete: User | null = null;
+selectedReassignUserId: number | null = null;
+
+showDeletePopup = false;
+selectedNewUserName = '';
+userToDeleteId: number | null = null;
+userToDeleteName = '';
 
   userForm = {
     name: '',
@@ -87,6 +96,19 @@ usersPageNumbers: number[] = [];
     priority: 'medium' as 'low' | 'medium' | 'high',
     dueDate: undefined as Date | undefined | null
   };
+
+openDeletePopup(user: User): void {
+  this.userToDeleteId = user.id;
+  this.userToDeleteName = user.name;
+  this.selectedNewUserName = '';
+  this.showDeletePopup = true;
+}
+
+closeDeleteUserModal(): void {
+  this.showDeleteUserModal = false;
+  this.userToDelete = null;
+  this.selectedReassignUserId = null;
+}
 
   constructor(
     private authService: AuthService,
@@ -360,25 +382,38 @@ private loadUsers(page: number = 0): void {
       });
     }
   }
+confirmDeleteUser(): void {
+  if (!this.selectedNewUserName) {
+    this.toastr.warning('Please select a user for task reassignment');
+    return;
+  }
 
-  deleteUser(userId: number): void {
-    const user = this.users.find(u => u.id === userId);
-    this.adminService.deleteUser(userId).subscribe({
+  if (!this.userToDeleteId) return;
+
+  this.adminService
+    .deleteUser(this.userToDeleteId, this.selectedNewUserName)
+    .subscribe({
       next: () => {
         this.loadUsers();
-        this.toastr.success(`User "${user?.name}" deleted successfully`, 'Success');
-        this.addNotification(`User "${user?.name}" was deleted`);
+        this.loadTasks();
+
+        this.toastr.success(
+          `User "${this.userToDeleteName}" deleted successfully`,
+          'Success'
+        );
+
+        this.showDeletePopup = false;
       },
-      error: (error) => {
-        if (error.status === 200) {
-          this.loadUsers();
-          this.toastr.success(`User "${user?.name}" deleted successfully`, 'Success');
-        } else {
-          this.toastr.error('Failed to delete user', 'Error');
-        }
+      error: () => {
+        this.toastr.error('Failed to delete user', 'Error');
       }
     });
-  }
+}
+
+closeDeletePopup(): void {
+  this.showDeletePopup = false;
+  this.selectedNewUserName = '';
+}
 
   openCreateTaskModal(): void {
     this.editingTask = null;
@@ -537,6 +572,14 @@ private loadUsers(page: number = 0): void {
   getAssignedUserName(userId: number): string {
     return this.getUserName(userId);
   }
+
+  get availableUsersForReassign(): User[] {
+  return this.users.filter(
+    user =>
+      user.role === 'USER' &&
+      user.id !== this.userToDeleteId
+  );
+}
 
   getUserById(userId: number): User | undefined {
     return this.users.find(u => u.id === userId);

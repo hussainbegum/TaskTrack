@@ -73,8 +73,44 @@ public class AdminService {
         return null;
     }
 
-    public void deleteUser(Long id){
-        userRepository.deleteById(id);
+    //public void deleteUser(Long id){
+       // userRepository.deleteById(id);
+   // }
+    
+   // public void deleteUser(Long id) {
+        // Delete all tasks assigned to this user
+     //   List<Task> userTasks = taskRepository.findByUserId(id);
+
+        //if (userTasks != null && !userTasks.isEmpty()) {
+            //taskRepository.deleteAll(userTasks);
+       // }
+
+        // Delete user after deleting tasks
+        //userRepository.deleteById(id);
+    //}
+    
+    public void deleteUser(Long oldUserId, String newUserName) {
+
+        User newUser = userRepository.findByName(newUserName);
+
+        if (newUser == null) {
+            throw new RuntimeException("New user not found for task reassignment");
+        }
+
+        if (oldUserId.equals(newUser.getId())) {
+            throw new RuntimeException("Cannot reassign tasks to same user");
+        }
+
+        List<Task> userTasks = taskRepository.findByUserId(oldUserId);
+
+        for (Task task : userTasks) {
+            task.setUserId(newUser.getId());
+            task.setUpdatedAt(new Date());
+        }
+
+        taskRepository.saveAll(userTasks);
+
+        userRepository.deleteById(oldUserId);
     }
 
     public List<Task> getUserTasks(Long userId){
