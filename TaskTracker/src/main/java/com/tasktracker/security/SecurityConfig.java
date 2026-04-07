@@ -3,7 +3,6 @@ package com.tasktracker.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,11 +31,6 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-            		 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                     .requestMatchers("/auth/login").permitAll()
-                     .requestMatchers("/auth/signup").permitAll()
-                     .requestMatchers("/auth/forgot-password").permitAll()
-                     .requestMatchers("/auth/reset-password").permitAll()
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/admin/**").hasRole("ADMIN") // Only ADMIN can access
                     .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN") // Both roles can access

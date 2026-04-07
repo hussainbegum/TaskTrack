@@ -18,13 +18,23 @@ public class User {
     private String email;
     private String password;
     
-    @Enumerated(EnumType.STRING)
+    private boolean firstLogin = true;
+    
+    public boolean isFirstLogin() {
+		return firstLogin;
+	}
+
+	public void setFirstLogin(boolean firstLogin) {
+		this.firstLogin = firstLogin;
+	}
+	@Enumerated(EnumType.STRING)
     private Role role;
 
     @Override
-    public String toString() {
-        return "User [id=" + id + ", name=" + name + ", email=" + email + ", role=" + role + "]";
-    }
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + ", firstLogin="
+				+ firstLogin + ", role=" + role + "]";
+	}
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

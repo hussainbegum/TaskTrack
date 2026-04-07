@@ -8,7 +8,7 @@ public class TaskTrackerApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(TaskTrackerApplication.class, args);
-		System.out.println("This Is My Project Task...............");
+		System.out.println("Hloo ...............");
 	}
 
 }

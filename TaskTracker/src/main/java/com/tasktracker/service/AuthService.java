@@ -1,36 +1,27 @@
+
 package com.tasktracker.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 import com.tasktracker.model.User;
 import com.tasktracker.repository.UserRepository;
 
-@Service
 public class AuthService {
+	   @Autowired
+	    private UserRepository repo;
 
-    @Autowired
-    private UserRepository repo;
+	    public User signup(User user){
+	        return repo.save(user);
+	    }
 
-    @Autowired
-    private PasswordEncoder passwordEncoder; // ✅ ADD THIS
+	    public User login(String email,String password){
 
-    // ✅ Signup (encode password)
-    public User signup(User user){
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // 🔥 IMPORTANT
-        return repo.save(user);
-    }
+	        User user = repo.findByEmail(email).orElse(null);
 
-    // ✅ Login (match encoded password)
-    public User login(String email, String password){
+	        if(user!=null && user.getPassword().equals(password)){
+	            return user;
+	        }
 
-        User user = repo.findByEmail(email).orElse(null);
-
-        if(user != null && passwordEncoder.matches(password, user.getPassword())){
-            return user;
-        }
-
-        throw new RuntimeException("Invalid Credentials"); // better than returning null
-    }
+	        return null;
+	    }
 }
