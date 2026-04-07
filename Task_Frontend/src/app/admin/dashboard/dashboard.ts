@@ -45,8 +45,14 @@ export class AdminDashboardComponent implements OnInit {
   usersLoaded = false;
   tasksLoaded = false;
 
-  usersCurrentPage = 1;
-  usersPageSize = 5;
+
+  usersCurrentPage = 0;
+usersPageSize = 3;
+usersTotalPages = 0;
+usersTotalElements = 0;
+isFirstPage = true;
+isLastPage = false;
+usersPageNumbers: number[] = [];
 
   tasksCurrentPage = 1;
   tasksPageSize = 5;
@@ -101,16 +107,29 @@ export class AdminDashboardComponent implements OnInit {
     this.currentAdmin = this.authService.getCurrentUser();
   }
 
-  private loadUsers(): void {
-    this.adminService.getAllUsers().subscribe({
-      next: (users) => {
-        this.users = users;
-        this.usersLoaded = true;
-        this.updateStats();
-      },
-      error: () => this.toastr.error('Failed to load users', 'Error')
-    });
-  }
+private loadUsers(page: number = 0): void {
+  this.adminService.getUsersPage(page, this.usersPageSize).subscribe({
+    next: (response) => {
+      this.users = response.content;
+
+      this.usersCurrentPage = response.number;
+      this.usersTotalPages = response.totalPages;
+      this.usersTotalElements = response.totalElements;
+
+      this.isFirstPage = response.first;
+      this.isLastPage = response.last;
+
+      this.usersPageNumbers = Array.from(
+        { length: this.usersTotalPages },
+        (_, i) => i
+      );
+
+      this.usersLoaded = true;
+      this.totalUsers = response.totalElements;
+    },
+    error: () => this.toastr.error('Failed to load users', 'Error')
+  });
+}
 
   private loadTasks(): void {
     this.adminService.getAllTasks().subscribe({
@@ -125,9 +144,11 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   private updateStats(): void {
+   
+
     if (this.usersLoaded) {
-      this.totalUsers = this.users.length;
-    }
+  this.totalUsers = this.usersTotalElements;
+}
     if (this.tasksLoaded) {
       this.totalTasks = this.tasks.length;
       this.completedTasks = this.tasks.filter(t => t.status === 'completed').length;
@@ -148,24 +169,12 @@ export class AdminDashboardComponent implements OnInit {
     return value === null ? '—' : `${value}%`;
   }
 
-  // ── Users Pagination ──────────────────────────────────────────────────────
-  get pagedUsers(): User[] {
-    const start = (this.usersCurrentPage - 1) * this.usersPageSize;
-    return this.users.slice(start, start + this.usersPageSize);
-  }
 
-  get usersTotalPages(): number {
-    return Math.ceil(this.users.length / this.usersPageSize) || 1;
-  }
 
-  get usersPageNumbers(): number[] {
-    return Array.from({ length: this.usersTotalPages }, (_, i) => i + 1);
-  }
-
-  setUsersPage(page: number): void {
-    if (page < 1 || page > this.usersTotalPages) return;
-    this.usersCurrentPage = page;
-  }
+ setUsersPage(page: number): void {
+  if (page < 0 || page >= this.usersTotalPages) return;
+  this.loadUsers(page);
+}
 
   // ── Tasks Pagination ──────────────────────────────────────────────────────
   get pagedTasks(): Task[] {

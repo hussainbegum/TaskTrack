@@ -276,7 +276,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let user of pagedUsers">
+              <tr *ngFor="let user of users">
                 <td>
                   <div class="user-cell">
                     <div class="user-avatar-sm" [style.background]="getUserAvatarColor(user)">
@@ -320,26 +320,47 @@
           </table>
         </div>
 
-        <div class="pagination-container" *ngIf="users.length > usersPageSize">
-          <div class="pagination-info">
-            Showing <strong>{{ (usersCurrentPage - 1) * usersPageSize + 1 }}–{{ usersCurrentPage * usersPageSize > users.length ? users.length : usersCurrentPage * usersPageSize }}</strong> of <strong>{{ users.length }}</strong> users
-          </div>
-          <div class="pagination-controls">
-            <button class="page-btn" (click)="setUsersPage(usersCurrentPage - 1)" [disabled]="usersCurrentPage === 1">
-              <i class="material-icons">chevron_left</i>
-            </button>
-            <button
-              *ngFor="let page of usersPageNumbers"
-              class="page-btn"
-              [class.active]="page === usersCurrentPage"
-              (click)="setUsersPage(page)">
-              {{ page }}
-            </button>
-            <button class="page-btn" (click)="setUsersPage(usersCurrentPage + 1)" [disabled]="usersCurrentPage === usersTotalPages">
-              <i class="material-icons">chevron_right</i>
-            </button>
-          </div>
-        </div>
+        <div class="pagination-container" *ngIf="usersTotalPages > 1">
+  <div class="pagination-info">
+    Showing
+    <strong>
+      {{ usersCurrentPage * usersPageSize + 1 }}
+      –
+      {{
+        (usersCurrentPage + 1) * usersPageSize > usersTotalElements
+          ? usersTotalElements
+          : (usersCurrentPage + 1) * usersPageSize
+      }}
+    </strong>
+    of
+    <strong>{{ usersTotalElements }}</strong>
+    users
+  </div>
+
+  <div class="pagination-controls">
+    <button
+      class="page-btn"
+      (click)="setUsersPage(usersCurrentPage - 1)"
+      [disabled]="isFirstPage">
+      <i class="material-icons">chevron_left</i>
+    </button>
+
+    <button
+      *ngFor="let page of usersPageNumbers"
+      class="page-btn"
+      [class.active]="page === usersCurrentPage"
+      (click)="setUsersPage(page)">
+      {{ page + 1 }}
+    </button>
+
+    <button
+      class="page-btn"
+      (click)="setUsersPage(usersCurrentPage + 1)"
+      [disabled]="isLastPage">
+      <i class="material-icons">chevron_right</i>
+    </button>
+  </div>
+</div>
       </div>
 
       <div *ngIf="currentView === 'tasks'" class="fade-in">

@@ -12,10 +12,19 @@ export class AdminService {
 
   constructor(private http: HttpClient) {}
 
+
+  getUsersPage(page: number, size: number): Observable<any> {
+  return this.http.get<any>(
+    `${this.apiUrl}/userspage?page=${page}&size=${size}`
+  );
+}
+
   // User Management
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users`);
   }
+
+  
 
   createUser(user: User): Observable<User> {
     return this.http.post<User>(`${this.apiUrl}/users`, user);
