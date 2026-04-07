@@ -206,8 +206,8 @@
                   <h4>{{ task.title }}</h4>
                   <div class="task-meta">
                     <span><i class="material-icons">person</i> {{ getAssignedUserName(task.userId) }}</span>
-                    <span><i class="material-icons">schedule</i> {{ task.createdAt | date:'MMM d, yyyy' }}</span>
-                    <span *ngIf="task.dueDate"><i class="material-icons">event</i> Due: {{ task.dueDate | date:'MMM d, yyyy' }}</span>
+                    <span><i class="material-icons">schedule</i> {{ task.createdAt | date:'MMM d yyyy' }}</span>
+                    <span *ngIf="task.dueDate"><i class="material-icons">event</i> Due: {{ task.dueDate | date:'MMM d yyyy' }}</span>
                     <span class="status-badge" [ngClass]="task.status">{{ getStatusText(task.status) }}</span>
                   </div>
                 </div>
@@ -422,8 +422,8 @@
                     <option value="completed">Completed</option>
                   </select>
                 </td>
-                <td>{{ task.createdAt | date:'MMM d, yyyy' }}</td>
-                <td>{{ task.dueDate ? (task.dueDate | date:'MMM d, yyyy') : 'Not set' }}</td>
+                <td>{{ task.createdAt | date:'MMM d yyyy' }}</td>
+                <td>{{ task.dueDate ? (task.dueDate | date:'MMM d yyyy') : 'Not set' }}</td>
                 <td>
                   <div class="action-buttons">
                     <button class="icon-btn-sm" (click)="editTaskDetails(task)" title="Edit Task">
@@ -528,7 +528,7 @@
           <label>Assign To *</label>
           <select [(ngModel)]="taskForm.userId">
             <option [value]="0">Select a user</option>
-            <option *ngFor="let user of regularUsers" [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+            <option *ngFor="let user of regularUsers" [value]="user.id">{{ user.name }}</option>
           </select>
         </div>
         <div class="form-group">
