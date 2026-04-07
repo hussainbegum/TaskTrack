@@ -321,46 +321,46 @@
         </div>
 
         <div class="pagination-container" *ngIf="usersTotalPages > 1">
-  <div class="pagination-info">
-    Showing
-    <strong>
-      {{ usersCurrentPage * usersPageSize + 1 }}
-      –
-      {{
-        (usersCurrentPage + 1) * usersPageSize > usersTotalElements
-          ? usersTotalElements
-          : (usersCurrentPage + 1) * usersPageSize
-      }}
-    </strong>
-    of
-    <strong>{{ usersTotalElements }}</strong>
-    users
-  </div>
+          <div class="pagination-info">
+            Showing
+            <strong>
+              {{ usersCurrentPage * usersPageSize + 1 }}
+              –
+              {{
+                (usersCurrentPage + 1) * usersPageSize > usersTotalElements
+                  ? usersTotalElements
+                  : (usersCurrentPage + 1) * usersPageSize
+              }}
+            </strong>
+            of
+            <strong>{{ usersTotalElements }}</strong>
+            users
+          </div>
 
-  <div class="pagination-controls">
-    <button
-      class="page-btn"
-      (click)="setUsersPage(usersCurrentPage - 1)"
-      [disabled]="isFirstPage">
-      <i class="material-icons">chevron_left</i>
-    </button>
+          <div class="pagination-controls">
+            <button
+              class="page-btn"
+              (click)="setUsersPage(usersCurrentPage - 1)"
+              [disabled]="isFirstPage">
+              <i class="material-icons">chevron_left</i>
+            </button>
 
-    <button
-      *ngFor="let page of usersPageNumbers"
-      class="page-btn"
-      [class.active]="page === usersCurrentPage"
-      (click)="setUsersPage(page)">
-      {{ page + 1 }}
-    </button>
+            <button
+              *ngFor="let page of usersPageNumbers"
+              class="page-btn"
+              [class.active]="page === usersCurrentPage"
+              (click)="setUsersPage(page)">
+              {{ page + 1 }}
+            </button>
 
-    <button
-      class="page-btn"
-      (click)="setUsersPage(usersCurrentPage + 1)"
-      [disabled]="isLastPage">
-      <i class="material-icons">chevron_right</i>
-    </button>
-  </div>
-</div>
+            <button
+              class="page-btn"
+              (click)="setUsersPage(usersCurrentPage + 1)"
+              [disabled]="isLastPage">
+              <i class="material-icons">chevron_right</i>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div *ngIf="currentView === 'tasks'" class="fade-in">
@@ -487,11 +487,11 @@
           </div>
         </div>
       </div>
-
     </div>
   </main>
 </div>
 
+<!-- User Modal -->
 <div class="modal-overlay" *ngIf="showUserModal" (click)="closeUserModal()">
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
@@ -529,6 +529,7 @@
   </div>
 </div>
 
+<!-- Task Modal -->
 <div class="modal-overlay" *ngIf="showTaskModal" (click)="closeTaskModal()">
   <div class="modal-container modal-large" (click)="$event.stopPropagation()">
     <div class="modal-header">
@@ -576,7 +577,6 @@
         </div>
       </div>
     </div>
-
     <div class="modal-footer">
       <button class="btn-secondary" (click)="closeTaskModal()" [disabled]="isSaving">Cancel</button>
       <button class="btn-primary" (click)="saveTask()" [disabled]="isSaving">
@@ -584,9 +584,12 @@
         <span *ngIf="!isSaving">{{ editingTask ? 'Update' : 'Create' }}</span>
       </button>
     </div>
+  </div>
+</div>
 
-    <div class="modal-overlay" *ngIf="showDeletePopup">
-  <div class="modal-box">
+<!-- Delete User / Reassign Tasks Popup - MOVED OUTSIDE all modals -->
+<div class="modal-overlay" *ngIf="showDeletePopup" (click)="closeDeletePopup()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
     <h3>Reassign Tasks</h3>
 
     <p>
@@ -595,22 +598,14 @@
       to:
     </p>
 
-    <select [(ngModel)]="selectedNewUserName">
-      <option value="">Select User</option>
-
-      <option
-        *ngFor="let user of availableUsersForReassign"
-        [value]="user.name"
-      >
-        {{ user.name }}
-      </option>
+    <select [(ngModel)]="taskForm.userId">
+            <option [value]="0">Select a user</option>
+            <option *ngFor="let user of regularUsers" [value]="user.id">{{ user.name }}</option>
     </select>
 
     <div class="modal-actions">
       <button (click)="confirmDeleteUser()">Confirm Delete</button>
       <button (click)="closeDeletePopup()">Cancel</button>
     </div>
-    </div>
-</div>
   </div>
 </div>
