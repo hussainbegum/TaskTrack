@@ -36,7 +36,8 @@ public class AdminController {
         return adminService.getAllUsers();
     }
 
-    @GetMapping("/userspage")
+    @SuppressWarnings("unchecked")
+	@GetMapping("/userspage")
     public Page<User> getUserspage(Pageable pageable) {
         return adminService.getUsers(pageable);
     }

@@ -78,6 +78,7 @@ export class AdminDashboardComponent implements OnInit {
   selectedNewUserName = '';
   userToDeleteId: number | null = null;
   userToDeleteName = '';
+  isDeleting = false;
 
   userForm = {
     name: '',
@@ -129,6 +130,8 @@ openDeletePopup(user: User): void {
 // Add this new method for direct deletion
 deleteUserDirectly(userId: number, userName: string): void {
   console.log('Deleting user directly (no tasks):', userId);
+
+  this.isDeleting = true;
   
   this.adminService.deleteUser(userId).subscribe({
     next: (response: string) => {
@@ -136,12 +139,14 @@ deleteUserDirectly(userId: number, userName: string): void {
       this.ngZone.run(() => {
         this.loadUsers();
         this.loadTasks();
+        this.isDeleting = false;
       });
       this.toastr.success(`User "${userName}" deleted successfully`, 'Success');
       this.addNotification(`User "${userName}" was deleted`);
     },
     error: (error) => {
       console.error('Delete error:', error);
+      this.isDeleting = false;
       let errorMessage = 'Failed to delete user';
       if (error.error && typeof error.error === 'string') {
         errorMessage = error.error;
@@ -445,6 +450,7 @@ confirmDeleteUser(): void {
 
   if (!this.userToDeleteId) return;
 
+  this.isDeleting = true;
   this.adminService.deleteUser(this.userToDeleteId, this.selectedNewUserName).subscribe({
     next: (response: string) => {
       console.log('Delete with reassign response:', response);
@@ -455,12 +461,14 @@ confirmDeleteUser(): void {
         this.selectedNewUserName = '';
         this.userToDeleteId = null;
         this.userToDeleteName = '';
+        this.isDeleting = false;
       });
       this.toastr.success(response, 'Success');
       this.addNotification(`User "${this.userToDeleteName}" deleted and tasks reassigned`);
     },
     error: (error) => {
       console.error('Delete error:', error);
+      this.isDeleting = false;
       this.toastr.error(error.error || 'Failed to delete user', 'Error');
     }
   });
@@ -471,6 +479,7 @@ closeDeletePopup(): void {
   this.selectedNewUserName = '';
   this.userToDeleteId = null;
   this.userToDeleteName = '';
+  
 }
 
   openCreateTaskModal(): void {

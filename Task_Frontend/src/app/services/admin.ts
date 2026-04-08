@@ -56,7 +56,6 @@ deleteUser(userId: number, newUserName?: string) {
   );
 }
 
-
   getUserTasks(userId: number): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.apiUrl}/users/${userId}/tasks`);
   }

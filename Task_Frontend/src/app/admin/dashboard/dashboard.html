@@ -587,27 +587,42 @@
   </div>
 </div>
 
-<!-- In your dashboard.html -->
 <div class="delete-popup" *ngIf="showDeletePopup">
   <div class="popup-overlay" (click)="closeDeletePopup()"></div>
   <div class="popup-content">
-    <h3>Delete User</h3>
-    <p>User "{{ userToDeleteName }}" has tasks assigned.</p>
-    <p>Please select a user to reassign the tasks to:</p>
-    
-    <select [(ngModel)]="selectedNewUserName" class="form-control">
-      <option value="" disabled selected>Select a user...</option>
-      <option *ngFor="let user of availableUsersForReassign" [value]="user.name">
-        {{ user.name }} ({{ user.email }})
-      </option>
-    </select>
-    
-    <div class="popup-actions">
-      <button class="btn-secondary" (click)="closeDeletePopup()">Cancel</button>
-      <button class="btn-danger" (click)="confirmDeleteUser()" 
-              [disabled]="!selectedNewUserName">
-        Delete & Reassign
-      </button>
+    <div class="popup-header">
+      <h3>Delete User</h3>
+    </div>
+    <div class="popup-body">
+      <div class="warning-message">
+        <p>User "{{ userToDeleteName }}" has tasks assigned!</p>
+      </div>
+      <p class="info-text">Please select a user to reassign the tasks to:</p>
+      
+      <div class="form-group">
+        <label for="reassignUser">Reassign Tasks To</label>
+        <select id="reassignUser" 
+                [(ngModel)]="selectedNewUserName" 
+                class="custom-select">
+          <option value="" disabled selected>Select a user...</option>
+          <option *ngFor="let user of availableUsersForReassign" 
+                  [value]="user.name">
+            {{ user.name }} ({{ user.email }})
+          </option>
+        </select>
+      </div>
+      
+      <div class="popup-actions">
+        <button class="btn-secondary" (click)="closeDeletePopup()">
+          Cancel
+        </button>
+        <button class="btn-danger" 
+                (click)="confirmDeleteUser()" 
+                [disabled]="!selectedNewUserName"
+                [class.loading]="isDeleting">
+          Delete & Reassign
+        </button>
+      </div>
     </div>
   </div>
 </div>
