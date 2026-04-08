@@ -11,20 +11,16 @@ export class AdminService {
   private apiUrl = 'http://localhost:8080/admin';
 
   constructor(private http: HttpClient) {}
-
-
+  
   getUsersPage(page: number, size: number): Observable<any> {
-  return this.http.get<any>(
-    `${this.apiUrl}/userspage?page=${page}&size=${size}`
-  );
-}
+    return this.http.get<any>(
+      `${this.apiUrl}/userspage?page=${page}&size=${size}`
+    );
+  }
 
-  // User Management
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users`);
   }
-
-  
 
   createUser(user: User): Observable<User> {
     return this.http.post<User>(`${this.apiUrl}/users`, user);
@@ -34,33 +30,28 @@ export class AdminService {
     return this.http.put<User>(`${this.apiUrl}/users/${id}`, user);
   }
 
- 
-
-// In admin.service.ts
-// In admin.service.ts
-deleteUser(userId: number, newUserName?: string) {
-  const body: any = {};
-  if (newUserName && newUserName.trim()) {
-    body.newUserName = newUserName;
-  }
-  
-  console.log('DELETE Request - URL:', `${this.apiUrl}/users/${userId}`);
-  console.log('DELETE Request - Body:', body);
-  
-  return this.http.delete(
-    `${this.apiUrl}/users/${userId}`,
-    { 
-      body: body,
-      responseType: 'text' 
+  deleteUser(userId: number, newUserName?: string) {
+    const body: any = {};
+    if (newUserName && newUserName.trim()) {
+      body.newUserName = newUserName;
     }
-  );
-}
+    
+    console.log('DELETE Request - URL:', `${this.apiUrl}/users/${userId}`);
+    console.log('DELETE Request - Body:', body);
+    
+    return this.http.delete(
+      `${this.apiUrl}/users/${userId}`,
+      { 
+        body: body,
+        responseType: 'text' 
+      }
+    );
+  }
 
   getUserTasks(userId: number): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.apiUrl}/users/${userId}/tasks`);
   }
 
-  // Task Management
   getAllTasks(): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.apiUrl}/tasks`);
   }
