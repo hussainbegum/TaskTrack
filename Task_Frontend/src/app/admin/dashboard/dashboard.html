@@ -587,29 +587,27 @@
   </div>
 </div>
 
-<!-- Delete User / Reassign Tasks Popup - MOVED OUTSIDE all modals -->
-<div class="modal-overlay" *ngIf="showDeletePopup" (click)="closeDeletePopup()">
-  <div class="modal-box" (click)="$event.stopPropagation()">
-    <h3>Reassign Tasks</h3>
-
-    <p>
-      Reassign tasks from
-      <strong>{{ userToDeleteName }}</strong>
-      to:
-    </p>
-
-    <select [(ngModel)]="selectedNewUserName">
-    <option value="">Select a user</option>
-    <option
-      *ngFor="let user of availableUsersForReassign"
-      [value]="user.name">
-      {{ user.name }}
-    </option>
-</select>
-
-    <div class="modal-actions">
-      <button (click)="confirmDeleteUser()">Confirm Delete</button>
-      <button (click)="closeDeletePopup()">Cancel</button>
+<!-- In your dashboard.html -->
+<div class="delete-popup" *ngIf="showDeletePopup">
+  <div class="popup-overlay" (click)="closeDeletePopup()"></div>
+  <div class="popup-content">
+    <h3>Delete User</h3>
+    <p>User "{{ userToDeleteName }}" has tasks assigned.</p>
+    <p>Please select a user to reassign the tasks to:</p>
+    
+    <select [(ngModel)]="selectedNewUserName" class="form-control">
+      <option value="" disabled selected>Select a user...</option>
+      <option *ngFor="let user of availableUsersForReassign" [value]="user.name">
+        {{ user.name }} ({{ user.email }})
+      </option>
+    </select>
+    
+    <div class="popup-actions">
+      <button class="btn-secondary" (click)="closeDeletePopup()">Cancel</button>
+      <button class="btn-danger" (click)="confirmDeleteUser()" 
+              [disabled]="!selectedNewUserName">
+        Delete & Reassign
+      </button>
     </div>
   </div>
 </div>

@@ -34,7 +34,6 @@ export class AdminDashboardComponent implements OnInit {
   taskFilterUser = 'all';
   taskSearchTerm = '';
 
-  // null = not yet loaded from backend, number = real value
   totalUsers: number | null = null;
   totalTasks: number | null = null;
   completedTasks: number | null = null;
@@ -45,14 +44,13 @@ export class AdminDashboardComponent implements OnInit {
   usersLoaded = false;
   tasksLoaded = false;
 
-
   usersCurrentPage = 0;
-usersPageSize = 3;
-usersTotalPages = 0;
-usersTotalElements = 0;
-isFirstPage = true;
-isLastPage = false;
-usersPageNumbers: number[] = [];
+  usersPageSize = 3;
+  usersTotalPages = 0;
+  usersTotalElements = 0;
+  isFirstPage = true;
+  isLastPage = false;
+  usersPageNumbers: number[] = [];
 
   tasksCurrentPage = 1;
   tasksPageSize = 5;
@@ -73,13 +71,13 @@ usersPageNumbers: number[] = [];
   editingTask: Task | null = null;
   
   showDeleteUserModal = false;
-userToDelete: User | null = null;
-selectedReassignUserId: number | null = null;
+  userToDelete: User | null = null;
+  selectedReassignUserId: number | null = null;
 
-showDeletePopup = false;
-selectedNewUserName = '';
-userToDeleteId: number | null = null;
-userToDeleteName = '';
+  showDeletePopup = false;
+  selectedNewUserName = '';
+  userToDeleteId: number | null = null;
+  userToDeleteName = '';
 
   userForm = {
     name: '',
@@ -97,61 +95,110 @@ userToDeleteName = '';
     dueDate: undefined as Date | undefined | null
   };
 
+// Replace the existing openDeletePopup method with this:
 openDeletePopup(user: User): void {
-  this.userToDeleteId = user.id;
-  this.userToDeleteName = user.name;
-  this.selectedNewUserName = '';
-  this.showDeletePopup = true;
+  console.log('Checking tasks for user:', user.id);
+  
+  // First check if user has tasks
+  this.adminService.getUserTasks(user.id).subscribe({
+    next: (tasks) => {
+      console.log('User has tasks:', tasks.length);
+      
+      if (tasks && tasks.length > 0) {
+        // User HAS tasks - show popup for reassignment
+        this.userToDeleteId = user.id;
+        this.userToDeleteName = user.name;
+        this.selectedNewUserName = '';
+        this.showDeletePopup = true;
+      } else {
+        // User has NO tasks - delete directly
+        this.deleteUserDirectly(user.id, user.name);
+      }
+    },
+    error: (error) => {
+      console.error('Error checking user tasks:', error);
+      // If can't check tasks, show popup as fallback
+      this.userToDeleteId = user.id;
+      this.userToDeleteName = user.name;
+      this.selectedNewUserName = '';
+      this.showDeletePopup = true;
+    }
+  });
 }
 
-closeDeleteUserModal(): void {
-  this.showDeleteUserModal = false;
-  this.userToDelete = null;
-  this.selectedReassignUserId = null;
+// Add this new method for direct deletion
+deleteUserDirectly(userId: number, userName: string): void {
+  console.log('Deleting user directly (no tasks):', userId);
+  
+  this.adminService.deleteUser(userId).subscribe({
+    next: (response: string) => {
+      console.log('Delete response:', response);
+      this.ngZone.run(() => {
+        this.loadUsers();
+        this.loadTasks();
+      });
+      this.toastr.success(`User "${userName}" deleted successfully`, 'Success');
+      this.addNotification(`User "${userName}" was deleted`);
+    },
+    error: (error) => {
+      console.error('Delete error:', error);
+      let errorMessage = 'Failed to delete user';
+      if (error.error && typeof error.error === 'string') {
+        errorMessage = error.error;
+      }
+      this.toastr.error(errorMessage, 'Error');
+    }
+  });
 }
+
+  closeDeleteUserModal(): void {
+    this.showDeleteUserModal = false;
+    this.userToDelete = null;
+    this.selectedReassignUserId = null;
+  }
 
   constructor(
     private authService: AuthService,
     private adminService: AdminService,
-    public toastr: ToastrService,
+    private toastr: ToastrService,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.loadCurrentAdmin();
-    this.loadUsers();
-    this.loadTasks();
-    this.initNotifications();
+      this.loadCurrentAdmin();
+      console.log('Current user role:', this.currentAdmin?.role);
+      this.loadCurrentAdmin();
+      this.loadUsers();
+      this.loadTasks();
+      this.initNotifications();
   }
 
   private loadCurrentAdmin(): void {
     this.currentAdmin = this.authService.getCurrentUser();
   }
 
-private loadUsers(page: number = 0): void {
-  this.adminService.getUsersPage(page, this.usersPageSize).subscribe({
-    next: (response) => {
-      this.users = response.content;
-
-      this.usersCurrentPage = response.number;
-      this.usersTotalPages = response.totalPages;
-      this.usersTotalElements = response.totalElements;
-
-      this.isFirstPage = response.first;
-      this.isLastPage = response.last;
-
-      this.usersPageNumbers = Array.from(
-        { length: this.usersTotalPages },
-        (_, i) => i
-      );
-
-      this.usersLoaded = true;
-      this.totalUsers = response.totalElements;
-    },
-    error: () => this.toastr.error('Failed to load users', 'Error')
-  });
-}
+  private loadUsers(page: number = 0): void {
+    this.adminService.getUsersPage(page, this.usersPageSize).subscribe({
+      next: (response) => {
+        this.users = response.content;
+        this.usersCurrentPage = response.number;
+        this.usersTotalPages = response.totalPages;
+        this.usersTotalElements = response.totalElements;
+        this.isFirstPage = response.first;
+        this.isLastPage = response.last;
+        this.usersPageNumbers = Array.from({ length: this.usersTotalPages }, (_, i) => i);
+        this.usersLoaded = true;
+        this.totalUsers = response.totalElements;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.ngZone.runOutsideAngular(() => {
+          this.toastr.error('Failed to load users', 'Error');
+        });
+      }
+    });
+  }
 
   private loadTasks(): void {
     this.adminService.getAllTasks().subscribe({
@@ -160,17 +207,20 @@ private loadUsers(page: number = 0): void {
         this.filteredTasks = [...tasks];
         this.tasksLoaded = true;
         this.updateStats();
+        this.cdr.detectChanges();
       },
-      error: () => this.toastr.error('Failed to load tasks', 'Error')
+      error: () => {
+        this.ngZone.runOutsideAngular(() => {
+          this.toastr.error('Failed to load tasks', 'Error');
+        });
+      }
     });
   }
 
   private updateStats(): void {
-   
-
     if (this.usersLoaded) {
-  this.totalUsers = this.usersTotalElements;
-}
+      this.totalUsers = this.usersTotalElements;
+    }
     if (this.tasksLoaded) {
       this.totalTasks = this.tasks.length;
       this.completedTasks = this.tasks.filter(t => t.status === 'completed').length;
@@ -182,7 +232,6 @@ private loadUsers(page: number = 0): void {
     }
   }
 
-  // Returns '—' while loading, real number once backend responds
   statDisplay(value: number | null): string {
     return value === null ? '—' : value.toString();
   }
@@ -191,16 +240,11 @@ private loadUsers(page: number = 0): void {
     return value === null ? '—' : `${value}%`;
   }
 
+  setUsersPage(page: number): void {
+    if (page < 0 || page >= this.usersTotalPages) return;
+    this.loadUsers(page);
+  }
 
-
- setUsersPage(page: number): void {
-  if (page < 0 || page >= this.usersTotalPages) return;
-  this.loadUsers(page);
-}
-
-
-
-  // ── Tasks Pagination ──────────────────────────────────────────────────────
   get pagedTasks(): Task[] {
     const start = (this.tasksCurrentPage - 1) * this.tasksPageSize;
     return this.filteredTasks.slice(start, start + this.tasksPageSize);
@@ -315,7 +359,9 @@ private loadUsers(page: number = 0): void {
 
   saveUser(): void {
     if (!this.userForm.name || !this.userForm.email) {
-      this.toastr.warning('Please fill in all required fields', 'Validation Error');
+      this.ngZone.runOutsideAngular(() => {
+        this.toastr.warning('Please fill in all required fields', 'Validation Error');
+      });
       return;
     }
 
@@ -335,24 +381,27 @@ private loadUsers(page: number = 0): void {
           this.ngZone.run(() => {
             this.closeUserModal();
             this.loadUsers();
-            this.toastr.success(`User "${userName}" updated successfully`, 'Success');
-            this.addNotification(`User "${userName}" was updated`);
             this.setView('users');
-            this.cdr.detectChanges();
           });
+          this.ngZone.runOutsideAngular(() => {
+            this.toastr.success(`User "${userName}" updated successfully`, 'Success');
+          });
+          this.addNotification(`User "${userName}" was updated`);
+          this.isSaving = false;
         },
         error: (err) => {
-          this.ngZone.run(() => {
-            console.error('Error updating user:', err);
+          console.error('Error updating user:', err);
+          this.ngZone.runOutsideAngular(() => {
             this.toastr.error('Failed to update user', 'Error');
-            this.isSaving = false;
-            this.cdr.detectChanges();
           });
+          this.isSaving = false;
         }
       });
     } else {
       if (!this.userForm.password) {
-        this.toastr.warning('Please enter a password', 'Validation Error');
+        this.ngZone.runOutsideAngular(() => {
+          this.toastr.warning('Please enter a password', 'Validation Error');
+        });
         this.isSaving = false;
         return;
       }
@@ -367,24 +416,28 @@ private loadUsers(page: number = 0): void {
           this.ngZone.run(() => {
             this.closeUserModal();
             this.loadUsers();
-            this.toastr.success(`User "${userName}" created successfully`, 'Success');
-            this.addNotification(`New user "${userName}" was created`);
             this.setView('users');
-            this.cdr.detectChanges();
           });
+          this.ngZone.runOutsideAngular(() => {
+            this.toastr.success(`User "${userName}" created successfully`, 'Success');
+          });
+          this.addNotification(`New user "${userName}" was created`);
+          this.isSaving = false;
         },
         error: (err) => {
-          this.ngZone.run(() => {
-            console.error('Error creating user:', err);
+          console.error('Error creating user:', err);
+          this.ngZone.runOutsideAngular(() => {
             this.toastr.error('Failed to create user', 'Error');
-            this.isSaving = false;
-            this.cdr.detectChanges();
           });
+          this.isSaving = false;
         }
       });
     }
   }
+
 confirmDeleteUser(): void {
+  console.log('Confirming delete with reassignment to:', this.selectedNewUserName);
+  
   if (!this.selectedNewUserName) {
     this.toastr.warning('Please select a user for task reassignment');
     return;
@@ -392,29 +445,32 @@ confirmDeleteUser(): void {
 
   if (!this.userToDeleteId) return;
 
-  this.adminService
-    .deleteUser(this.userToDeleteId, this.selectedNewUserName)
-    .subscribe({
-      next: () => {
+  this.adminService.deleteUser(this.userToDeleteId, this.selectedNewUserName).subscribe({
+    next: (response: string) => {
+      console.log('Delete with reassign response:', response);
+      this.ngZone.run(() => {
         this.loadUsers();
         this.loadTasks();
-
-        this.toastr.success(
-          `User "${this.userToDeleteName}" deleted successfully`,
-          'Success'
-        );
-
         this.showDeletePopup = false;
-      },
-      error: () => {
-        this.toastr.error('Failed to delete user', 'Error');
-      }
-    });
+        this.selectedNewUserName = '';
+        this.userToDeleteId = null;
+        this.userToDeleteName = '';
+      });
+      this.toastr.success(response, 'Success');
+      this.addNotification(`User "${this.userToDeleteName}" deleted and tasks reassigned`);
+    },
+    error: (error) => {
+      console.error('Delete error:', error);
+      this.toastr.error(error.error || 'Failed to delete user', 'Error');
+    }
+  });
 }
 
 closeDeletePopup(): void {
   this.showDeletePopup = false;
   this.selectedNewUserName = '';
+  this.userToDeleteId = null;
+  this.userToDeleteName = '';
 }
 
   openCreateTaskModal(): void {
@@ -457,7 +513,9 @@ closeDeletePopup(): void {
 
   saveTask(): void {
     if (!this.taskForm.title || !this.taskForm.userId) {
-      this.toastr.warning('Please fill in all required fields', 'Validation Error');
+      this.ngZone.runOutsideAngular(() => {
+        this.toastr.warning('Please fill in all required fields', 'Validation Error');
+      });
       return;
     }
 
@@ -465,7 +523,6 @@ closeDeletePopup(): void {
     this.isSaving = true;
 
     const taskTitle = this.taskForm.title;
-
     const data = {
       title: this.taskForm.title,
       description: this.taskForm.description || '',
@@ -481,18 +538,19 @@ closeDeletePopup(): void {
           this.ngZone.run(() => {
             this.closeTaskModal();
             this.loadTasks();
-            this.toastr.success(`Task "${taskTitle}" updated successfully`, 'Success');
-            this.addNotification(`Task "${taskTitle}" was updated`);
             this.setView('tasks');
-            this.cdr.detectChanges();
           });
+          this.ngZone.runOutsideAngular(() => {
+            this.toastr.success(`Task "${taskTitle}" updated successfully`, 'Success');
+          });
+          this.addNotification(`Task "${taskTitle}" was updated`);
+          this.isSaving = false;
         },
         error: () => {
-          this.ngZone.run(() => {
+          this.ngZone.runOutsideAngular(() => {
             this.toastr.error('Failed to update task', 'Error');
-            this.isSaving = false;
-            this.cdr.detectChanges();
           });
+          this.isSaving = false;
         }
       });
     } else {
@@ -501,18 +559,19 @@ closeDeletePopup(): void {
           this.ngZone.run(() => {
             this.closeTaskModal();
             this.loadTasks();
-            this.toastr.success(`Task "${taskTitle}" created successfully`, 'Success');
-            this.addNotification(`New task "${taskTitle}" was created`);
             this.setView('tasks');
-            this.cdr.detectChanges();
           });
+          this.ngZone.runOutsideAngular(() => {
+            this.toastr.success(`Task "${taskTitle}" created successfully`, 'Success');
+          });
+          this.addNotification(`New task "${taskTitle}" was created`);
+          this.isSaving = false;
         },
         error: () => {
-          this.ngZone.run(() => {
+          this.ngZone.runOutsideAngular(() => {
             this.toastr.error('Failed to create task', 'Error');
-            this.isSaving = false;
-            this.cdr.detectChanges();
           });
+          this.isSaving = false;
         }
       });
     }
@@ -521,15 +580,21 @@ closeDeletePopup(): void {
   updateTaskStatus(task: Task): void {
     this.adminService.updateTaskStatus(task.id, task.status).subscribe({
       next: (updatedTask) => {
-        const index = this.tasks.findIndex(t => t.id === task.id);
-        if (index !== -1) this.tasks[index] = updatedTask;
-        this.filteredTasks = [...this.tasks];
-        this.updateStats();
-        this.toastr.success(`Task status changed to ${this.getStatusText(task.status)}`, 'Status Updated');
+        this.ngZone.run(() => {
+          const index = this.tasks.findIndex(t => t.id === task.id);
+          if (index !== -1) this.tasks[index] = updatedTask;
+          this.filteredTasks = [...this.tasks];
+          this.updateStats();
+        });
+        this.ngZone.runOutsideAngular(() => {
+          this.toastr.success(`Task status changed to ${this.getStatusText(task.status)}`, 'Status Updated');
+        });
         this.addNotification(`Task "${task.title}" status changed to ${this.getStatusText(task.status)}`);
       },
       error: () => {
-        this.toastr.error('Failed to update task status', 'Error');
+        this.ngZone.runOutsideAngular(() => {
+          this.toastr.error('Failed to update task status', 'Error');
+        });
         this.loadTasks();
       }
     });
@@ -539,16 +604,26 @@ closeDeletePopup(): void {
     const task = this.tasks.find(t => t.id === taskId);
     this.adminService.deleteTask(taskId).subscribe({
       next: () => {
-        this.loadTasks();
-        this.toastr.success(`Task "${task?.title}" deleted successfully`, 'Success');
+        this.ngZone.run(() => {
+          this.loadTasks();
+        });
+        this.ngZone.runOutsideAngular(() => {
+          this.toastr.success(`Task "${task?.title}" deleted successfully`, 'Success');
+        });
         this.addNotification(`Task "${task?.title}" was deleted`);
       },
       error: (error) => {
         if (error.status === 200) {
-          this.loadTasks();
-          this.toastr.success(`Task "${task?.title}" deleted successfully`, 'Success');
+          this.ngZone.run(() => {
+            this.loadTasks();
+          });
+          this.ngZone.runOutsideAngular(() => {
+            this.toastr.success(`Task "${task?.title}" deleted successfully`, 'Success');
+          });
         } else {
-          this.toastr.error('Failed to delete task', 'Error');
+          this.ngZone.runOutsideAngular(() => {
+            this.toastr.error('Failed to delete task', 'Error');
+          });
         }
       }
     });
@@ -576,12 +651,11 @@ closeDeletePopup(): void {
   }
 
   get availableUsersForReassign(): User[] {
-  return this.users.filter(
-    user =>
-      user.role === 'USER' &&
+    return this.users.filter(user => 
+      user.role === 'USER' && 
       user.id !== this.userToDeleteId
-  );
-}
+    );
+  }
 
   getUserById(userId: number): User | undefined {
     return this.users.find(u => u.id === userId);

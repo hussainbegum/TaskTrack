@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../Model/user';
 import { Task, TaskCreate, TaskUpdate } from '../Model/task';
@@ -36,16 +36,26 @@ export class AdminService {
 
  
 
-deleteUser(userId: number, newUserName: string) {
+// In admin.service.ts
+// In admin.service.ts
+deleteUser(userId: number, newUserName?: string) {
+  const body: any = {};
+  if (newUserName && newUserName.trim()) {
+    body.newUserName = newUserName;
+  }
+  
+  console.log('DELETE Request - URL:', `${this.apiUrl}/users/${userId}`);
+  console.log('DELETE Request - Body:', body);
+  
   return this.http.delete(
     `${this.apiUrl}/users/${userId}`,
-    {
-      body: { newUserName }
+    { 
+      body: body,
+      responseType: 'text' 
     }
   );
 }
 
-  
 
   getUserTasks(userId: number): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.apiUrl}/users/${userId}/tasks`);

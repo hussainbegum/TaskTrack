@@ -89,28 +89,43 @@ public class AdminService {
         //userRepository.deleteById(id);
     //}
     
-    public void deleteUser(Long oldUserId, String newUserName) {
-
+ // For users WITH tasks - reassign before deleting
+    public void deleteUserWithReassignment(Long oldUserId, String newUserName) {
         User newUser = userRepository.findByName(newUserName);
-
+        
         if (newUser == null) {
-            throw new RuntimeException("New user not found for task reassignment");
+            throw new RuntimeException("User '" + newUserName + "' not found for task reassignment");
         }
-
+        
         if (oldUserId.equals(newUser.getId())) {
-            throw new RuntimeException("Cannot reassign tasks to same user");
+            throw new RuntimeException("Cannot reassign tasks to the same user being deleted");
         }
-
+        
         List<Task> userTasks = taskRepository.findByUserId(oldUserId);
-
+        
+        if (userTasks.isEmpty()) {
+            // No tasks to reassign, just delete
+            userRepository.deleteById(oldUserId);
+            return;
+        }
+        
+        // Reassign all tasks to new user
         for (Task task : userTasks) {
             task.setUserId(newUser.getId());
             task.setUpdatedAt(new Date());
         }
-
+        
         taskRepository.saveAll(userTasks);
-
         userRepository.deleteById(oldUserId);
+    }
+
+    // For users WITHOUT tasks - simple delete
+    public void deleteUserWithoutTasks(Long userId) {
+        // Verify user exists
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+        userRepository.deleteById(userId);
     }
 
     public List<Task> getUserTasks(Long userId){
