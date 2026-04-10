@@ -35,10 +35,6 @@ export class AdminService {
     if (newUserName && newUserName.trim()) {
       body.newUserName = newUserName;
     }
-    
-    console.log('DELETE Request - URL:', `${this.apiUrl}/users/${userId}`);
-    console.log('DELETE Request - Body:', body);
-    
     return this.http.delete(
       `${this.apiUrl}/users/${userId}`,
       { 

@@ -127,7 +127,6 @@ openDeletePopup(user: User): void {
   });
 }
 
-// Add this new method for direct deletion
 deleteUserDirectly(userId: number, userName: string): void {
   console.log('Deleting user directly (no tasks):', userId);
 

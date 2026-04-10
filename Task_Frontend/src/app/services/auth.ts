@@ -17,7 +17,7 @@ export class AuthService {
   private readonly USER_KEY = 'user';
   private readonly ROLE_KEY = 'role';
   private readonly TOKEN_EXPIRY_KEY = 'token_expiry';
-  private readonly SESSION_DURATION = 10 * 60 * 1000;
+  private readonly SESSION_DURATION = 30 * 60 * 1000;
 
   private sessionCheckInterval: any;
 
