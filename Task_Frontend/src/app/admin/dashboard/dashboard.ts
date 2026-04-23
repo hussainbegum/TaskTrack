@@ -658,7 +658,7 @@ closeDeletePopup(): void {
     return this.getUserName(userId);
   }
 
-  get availableUsersForReassign(): User[] {
+  getavailableUsersForReassign(): User[] {
     return this.users.filter(user => 
       user.role === 'USER' && 
       user.id !== this.userToDeleteId
