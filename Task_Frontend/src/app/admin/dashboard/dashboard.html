@@ -116,10 +116,10 @@
               <h3>{{ totalUsers }}</h3>
               <p>Total Users</p>
             </div>
-            <div class="stat-trend positive">
+            <!-- <div class="stat-trend positive">
               <i class="material-icons">trending_up</i>
               <span>+{{ userGrowthRate }}%</span>
-            </div>
+            </div> -->
           </div>
 
           <div class="stat-card">
@@ -130,10 +130,10 @@
               <h3>{{ totalTasks }}</h3>
               <p>Total Tasks</p>
             </div>
-            <div class="stat-trend positive">
+            <!-- <div class="stat-trend positive">
               <i class="material-icons">trending_up</i>
               <span>+{{ taskGrowthRate }}%</span>
-            </div>
+            </div> -->
           </div>
 
           <div class="stat-card">
@@ -144,10 +144,10 @@
               <h3>{{ completedTasks }}</h3>
               <p>Completed Tasks</p>
             </div>
-            <div class="stat-trend positive">
+            <!-- <div class="stat-trend positive">
               <i class="material-icons">trending_up</i>
               <span>+{{ completedGrowthRate }}%</span>
-            </div>
+            </div> -->
           </div>
 
           <div class="stat-card">
@@ -158,10 +158,10 @@
               <h3>{{ pendingTasks }}</h3>
               <p>Pending Tasks</p>
             </div>
-            <div class="stat-trend negative">
+            <!-- <div class="stat-trend negative">
               <i class="material-icons">trending_down</i>
               <span>-{{ pendingDecreaseRate }}%</span>
-            </div>
+            </div> -->
           </div>
         </div>
 
@@ -485,6 +485,65 @@
               <i class="material-icons">chevron_right</i>
             </button>
           </div>
+        </div>
+      </div>
+      <div class="card bg-dark text-white shadow-sm border-0 " *ngIf="currentView === 'profile'" (Click)="setView('profile')" style="border-radius: 12px; ">
+        <div class="card-body p-4">
+          
+          <!-- Full Name -->
+          <div class="row align-items-center" id="profile-info">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Full Name</h6>
+            </div>
+            <div class="col-sm-9" id="detail">
+              {{currentAdmin?.name}}
+            </div>
+          </div>
+          <hr class="border-secondary opacity-25">
+
+          <!-- Email -->
+          <div class="row align-items-center" id="profile-info">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Email</h6>
+            </div>
+            <div class="col-sm-9" id="detail">
+              {{currentAdmin?.email}}
+            </div>
+          </div>
+          <hr class="border-secondary opacity-25">
+
+          <!-- Phone -->
+          <div class="row align-items-center" id="profile-info">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Phone</h6>
+            </div>
+            <div class="col-sm-9" id="detail">
+              9876543210
+            </div>
+          </div>
+          <hr class="border-secondary opacity-25">
+
+          <!-- Mobile -->
+          <div class="row align-items-center" id="profile-info">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Mobile</h6>
+            </div>
+            <div class="col-sm-9" id="detail">
+              0987654312
+            </div>
+          </div>
+          <hr class="border-secondary opacity-25">
+
+          <!-- Address -->
+          <div class="row align-items-center" id="profile-info">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Role</h6>
+            </div>
+            <div class="col-sm-9" id="detail">
+              {{currentAdmin?.role}}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

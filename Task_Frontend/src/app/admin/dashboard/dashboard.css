@@ -64,7 +64,7 @@
   transition: all .3s;
 }
 
-.toggle-btn:hover { background: rgba(255,255,255,.2); transform: scale(1.05); }
+.toggle-btn:hover { background: rgba(255,255,255,.2); transform: scale(1.05); border-radius: 50%; }
 
 .sidebar-menu {
   flex: 1;
@@ -102,14 +102,14 @@
   position: relative;
 }
 
-.menu-item:hover { background: rgba(255,255,255,.1); color: white; }
+.menu-item:hover { background: rgba(255,255,255,.1); color: white; border-radius: 8px; }
 
 .menu-item.active {
   background: white;
   color: rgba(4, 56, 115, 1);
   box-shadow: 0 4px 12px rgba(0,0,0,.15);
 }
-
+.menu-item.active:hover{ border-radius:0px;}
 .menu-item i   { font-size: 20px; }
 .menu-item span{ font-size: 14px; font-weight: 500; }
 
@@ -119,6 +119,18 @@
   width: 3px;
   height: 60%;
   background: white;
+}
+
+#profile-info {
+  padding: 1rem;
+}
+#detail{
+  color: rgba(251, 206, 127, 0.696);
+}
+.card-body{
+  background-color: rgb(47, 47, 89);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .sidebar-footer {
@@ -183,7 +195,7 @@
   justify-content: center;
 }
 
-.icon-btn:hover { background: #e8edf3; }
+.icon-btn:hover { background: #e8edf3; border-radius: 50%; }
 .icon-btn i { font-size: 20px; color: #5a6e8a; }
 
 .badge {
@@ -514,7 +526,7 @@
 .users-table-container,
 .tasks-table-container {
   background: white;
-  border-radius: 20px;
+  border-radius: 20px 20px 0px 0px;
   overflow-x: auto;
   box-shadow: 0 1px 3px rgba(0,0,0,.05);
 }

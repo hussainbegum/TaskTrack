@@ -28,11 +28,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   pendingTasks = 0;
   inProgressTasks = 0;
   completionRate = 0;
+
+  showNotifications = false;
+  notifications: any[] = [];
+  notificationsCount = 0;
   
   currentView = 'dashboard';
-  showNotifications = false;
   showUserMenu = false;
-  notificationsCount = 0;
   showTaskModal = false;
   editingTask: Task | null = null;
   
@@ -95,6 +97,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       },
       error: (error) => console.error('Error loading tasks:', error)
     });
+  }
+
+  markAllNotificationsRead(): void {
+    this.notifications.forEach(n => n.read = true);
+    this.notificationsCount = 0;
+    this.showNotifications = false;
   }
 
   updateStatistics(): void {

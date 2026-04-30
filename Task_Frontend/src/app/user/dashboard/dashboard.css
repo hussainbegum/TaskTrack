@@ -130,16 +130,14 @@
   position: relative;
 }
 
-.menu-item:hover {
-  background: white;
-  color: rgba(4, 56, 115, 1);
-}
+.menu-item:hover {background: rgba(255,255,255,.1); color: white; border-radius: 8px;}
 
 .menu-item.active {
   background: white;
   color:  rgba(4, 56, 115, 1);
   box-shadow: 0 4px 12px rgba(4, 56, 115, 0.3);
 }
+.menu-item.active:hover{ border-radius:0px;}
 
 .menu-item i {
   font-size: 20px;
@@ -327,19 +325,51 @@
   background: #e2e8f0;
   margin: 0.5rem 0;
 }
-
+.user-menu-dropdown,
 .notifications-dropdown {
   position: absolute;
   top: 50px;
   right: 0;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0,0,0,.1);
+  min-width: 180px;
+  padding: .5rem;
+  z-index: 100;
+}
+
+.notifications-dropdown {
   width: 320px;
   max-height: 400px;
   overflow-y: auto;
-  z-index: 100;
+  padding:20px;
 }
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dropdown-header h4 { font-size: 14px; font-weight: 600; color: #2c3e5c; }
+
+.mark-all { background: none; border: none; font-size: 12px; color: rgba(4,56,115,1); cursor: pointer; }
+
+.notification-item {
+  display: flex;
+  gap: 12px;
+  padding: 1rem;
+  border-bottom: 1px solid #f0f2f5;
+  transition: background .3s;
+}
+
+.notification-item:hover { background: #f8fafc; }
+.notification-item i { color: rgba(4,56,115,1); }
+.notification-content p    { font-size: 13px; color: #2c3e5c; margin-bottom: 4px; }
+.notification-content span { font-size: 11px; color: #94a3b8; }
+
+.empty-notifications { padding: 2rem; text-align: center; color: #94a3b8; }
 
 /* Content */
 .content {
@@ -534,7 +564,17 @@
   transition: all 0.3s;
   background: #f8fafc;
 }
-
+#profile-info {
+  padding: 1rem;
+}
+#detail{
+  color: rgba(251, 206, 127, 0.696);
+}
+.card-body{
+  background-color: rgb(47, 47, 89);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
 .task-item:hover {
   background: #eef2f7;
   transform: translateX(4px);

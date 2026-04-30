@@ -7,8 +7,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
   const isAuthApi = req.url.includes('/auth/forgot-password') ||
                   req.url.includes('/auth/reset-password') ||
-                  req.url.includes('/auth/login') ||
-                  req.url.includes('/auth/signup');
+                  req.url.includes('/auth/login');
 
 if (req.method === 'OPTIONS' || isAuthApi) {
   console.log("Skipping token for:", req.url); 

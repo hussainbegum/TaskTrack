@@ -20,7 +20,8 @@ export class AdminDashboardComponent implements OnInit {
   menuItems = [
     { name: 'Dashboard', icon: 'dashboard', path: 'dashboard', active: true },
     { name: 'Users', icon: 'people', path: 'users', active: false },
-    { name: 'Tasks', icon: 'assignment', path: 'tasks', active: false }
+    { name: 'Tasks', icon: 'assignment', path: 'tasks', active: false },
+    {name: 'Profile', icon: 'person', path: 'profile', active: false }
   ];
 
   currentView = 'dashboard';
@@ -55,10 +56,6 @@ export class AdminDashboardComponent implements OnInit {
   tasksCurrentPage = 1;
   tasksPageSize = 5;
 
-  userGrowthRate = 12;
-  taskGrowthRate = 18;
-  completedGrowthRate = 15;
-  pendingDecreaseRate = 8;
 
   showUserMenu = false;
   showNotifications = false;
@@ -96,29 +93,24 @@ export class AdminDashboardComponent implements OnInit {
     dueDate: undefined as Date | undefined | null
   };
 
-// Replace the existing openDeletePopup method with this:
 openDeletePopup(user: User): void {
   console.log('Checking tasks for user:', user.id);
   
-  // First check if user has tasks
   this.adminService.getUserTasks(user.id).subscribe({
     next: (tasks) => {
       console.log('User has tasks:', tasks.length);
       
       if (tasks && tasks.length > 0) {
-        // User HAS tasks - show popup for reassignment
         this.userToDeleteId = user.id;
         this.userToDeleteName = user.name;
         this.selectedNewUserName = '';
         this.showDeletePopup = true;
       } else {
-        // User has NO tasks - delete directly
         this.deleteUserDirectly(user.id, user.name);
       }
     },
     error: (error) => {
       console.error('Error checking user tasks:', error);
-      // If can't check tasks, show popup as fallback
       this.userToDeleteId = user.id;
       this.userToDeleteName = user.name;
       this.selectedNewUserName = '';
@@ -283,6 +275,7 @@ deleteUserDirectly(userId: number, userName: string): void {
     this.menuItems.forEach(item => item.active = item.path === view);
     if (view === 'users') this.loadUsers();
     if (view === 'tasks') this.loadTasks();
+    if(view ==='profile') this.loadCurrentAdmin();
   }
 
   getPageTitle(): string {
@@ -298,7 +291,8 @@ deleteUserDirectly(userId: number, userName: string): void {
     const subtitles: Record<string, string> = {
       dashboard: 'Monitor team performance and manage tasks',
       users: 'Create, edit, and manage user accounts',
-      tasks: 'Assign and track tasks across your team'
+      tasks: 'Assign and track tasks across your team',
+      profile: 'View your profile information'
     };
     return subtitles[this.currentView] || '';
   }
@@ -310,7 +304,7 @@ deleteUserDirectly(userId: number, userName: string): void {
   getGreeting(): string {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
+    if (hour < 16) return 'Good afternoon';
     return 'Good evening';
   }
 
@@ -321,6 +315,7 @@ deleteUserDirectly(userId: number, userName: string): void {
   markAllNotificationsRead(): void {
     this.notifications.forEach(n => n.read = true);
     this.notificationsCount = 0;
+    this.showNotifications = false;
   }
 
   closeUserModal(): void {
@@ -658,7 +653,7 @@ closeDeletePopup(): void {
     return this.getUserName(userId);
   }
 
-  getavailableUsersForReassign(): User[] {
+  get availableUsersForReassign(): User[] {
     return this.users.filter(user => 
       user.role === 'USER' && 
       user.id !== this.userToDeleteId
