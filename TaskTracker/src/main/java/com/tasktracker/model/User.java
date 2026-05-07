@@ -18,20 +18,21 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @Column(unique = true)
     private String email;
     
     @JsonProperty(access = Access.WRITE_ONLY)
     private String password;
     
-    private boolean firstLogin = true;
+    private boolean admin1_User0 = true;
     
     public boolean isFirstLogin() {
-		return firstLogin;
+		return admin1_User0;
 	}
 
-	public void setFirstLogin(boolean firstLogin) {
-		this.firstLogin = firstLogin;
+	public void setFirstLogin(boolean admin1_User0) {
+		this.admin1_User0 = admin1_User0;
 	}
 	@Enumerated(EnumType.STRING)
     private Role role;
@@ -39,7 +40,7 @@ public class User {
     @Override
 	public String toString() {
 		return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + ", firstLogin="
-				+ firstLogin + ", role=" + role + "]";
+				+ admin1_User0 + ", role=" + role + "]";
 	}
 
     public Long getId() { return id; }
