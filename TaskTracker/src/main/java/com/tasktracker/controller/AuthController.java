@@ -40,28 +40,28 @@ public class AuthController {
     private Map<String, String> otpStorage = new HashMap<>();
     
 
-    // Signup
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody User user) {
-    	
-        if (repo.findByEmail(user.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
-        }
-        
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-        
-        // Default role is USER if not specified
-        if (user.getRole() == null) {
-            user.setRole(com.tasktracker.model.Role.USER);
-        }
-
-        User savedUser = repo.save(user);
-        
-        // Remove password from response
-        savedUser.setPassword(null);
-        return ResponseEntity.ok(savedUser);
-    }
+//    // Signup
+//    @PostMapping("/signup")
+//    public ResponseEntity<?> signup(@RequestBody User user) {
+//    	
+//        if (repo.findByEmail(user.getEmail()).isPresent()) {
+//            return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
+//        }
+//        
+//        String encodedPassword = passwordEncoder.encode(user.getPassword());
+//        user.setPassword(encodedPassword);
+//        
+//        // Default role is USER if not specified
+//        if (user.getRole() == null) {
+//            user.setRole(com.tasktracker.model.Role.USER);
+//        }
+//
+//        User savedUser = repo.save(user);
+//        
+//        // Remove password from response
+//        savedUser.setPassword(null);
+//        return ResponseEntity.ok(savedUser);
+//    }
 
     // Login - Return token and role
     @PostMapping("/login")

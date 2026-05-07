@@ -8,6 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Entity
 @Table(name="user")
@@ -18,6 +20,8 @@ public class User {
     private String name;
     @Column(unique = true)
     private String email;
+    
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String password;
     
     private boolean firstLogin = true;
