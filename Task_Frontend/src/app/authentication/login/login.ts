@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,8 @@ export class LoginComponent {
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastr: ToastrService
   ) {
     if (this.authService.isLoggedIn()) {
       const role = this.authService.getUserRole();
@@ -65,7 +67,7 @@ export class LoginComponent {
       error: (error) => {
         this.loading = false;
         this.errorMessage = error.message || 'Login failed. Please try again.';
-        console.error('Login error:', error);
+        this.toastr.error(this.errorMessage, 'Login Failed');
       }
     });
   }

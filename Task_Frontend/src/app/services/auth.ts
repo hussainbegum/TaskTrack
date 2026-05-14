@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { User, UserLogin, AuthResponse } from '../Model/user';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,7 @@ export class AuthService {
 
   private sessionCheckInterval: any;
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient, private router: Router, private toastr: ToastrService) {
     this.loadStoredUser();
     this.startSessionCheck();
   }
@@ -87,7 +88,7 @@ export class AuthService {
     const tokenExpiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
     
     if (tokenExpiry && this.isTokenExpired(tokenExpiry)) {
-      console.log('Session expired');
+      this.toastr.warning('your session has expired. Please login again.', 'Session Expired');
       this.logoutWithMessage('Your session has expired. Please login again.');
     }
   }
@@ -141,7 +142,7 @@ export class AuthService {
         if (response.role === 'ADMIN') {
           console.log('Navigating to admin dashboard');
           this.router.navigate(['/admin/dashboard']).then(success => {
-            console.log('Navigation to admin dashboard:', success);
+            this.toastr.success('welcome back, ' + response.username, 'Login Successful');
           }).catch(err => {
             console.error('Navigation error:', err);
           });
