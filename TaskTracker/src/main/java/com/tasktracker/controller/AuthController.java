@@ -114,6 +114,36 @@ public class AuthController {
 
         return ResponseEntity.ok("Password changed successfully");
     }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> request) {
+
+        String email = request.get("email");
+        String newPassword = request.get("newPassword");
+
+        if (email == null || newPassword == null || newPassword.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body("Email and New Password are required");
+        }
+
+        User user = repo.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setFirstLogin(false);
+
+        repo.save(user);
+
+        emailService.sendPasswordChangeMail(
+                user.getEmail(),
+                user.getName() != null ? user.getName() : "User"
+        );
+
+        return ResponseEntity.ok("Password updated successfully");
+    }
     
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {

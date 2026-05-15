@@ -281,7 +281,7 @@ deleteUserDirectly(userId: number, userName: string): void {
   }
 
   updatepassword(): void {
-    this.router.navigate(['/auth/change-password']);
+    this.router.navigate(['/auth/update-password']);
   }
 
   getPageTitle(): string {

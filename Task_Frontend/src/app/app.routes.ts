@@ -38,6 +38,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/change-password')
           .then(m => m.ChangePassword)
+      },
+      {
+        path: 'update-password',
+        loadComponent: () =>
+          import('./components/update-password')
+          .then(m => m.UpdatePassword)
       }
 
     ]

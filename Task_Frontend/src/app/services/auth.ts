@@ -281,6 +281,13 @@ changePassword(email: string, newPassword: string): Observable<any> {
     );
 }
 
+updatePassword(email: string, newPassword: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/update-password`, { email, newPassword })
+    .pipe(
+      catchError(this.handleError)
+    );
+}
+
 verifyCredentials(credentials: any): Observable<any> {
   // Verify current password without altering local session
   return this.http.post(`${this.apiUrl}/login`, credentials)
