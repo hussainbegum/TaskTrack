@@ -10,9 +10,9 @@ public class AuthService {
 	   @Autowired
 	    private UserRepository repo;
 
-	    public User signup(User user){
-	        return repo.save(user);
-	    }
+//	    public User signup(User user){
+//	        return repo.save(user);
+//	    }
 
 	    public User login(String email,String password){
 

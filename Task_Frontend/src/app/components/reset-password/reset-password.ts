@@ -29,7 +29,7 @@ export class ResetPassword {
   constructor(
     private authService: AuthService, 
     private router: Router,
-    private toastr: ToastrService  // ✅ Inject Toastr
+    private toastr: ToastrService
   ) {
     const nav = this.router.getCurrentNavigation();
     if (nav?.extras?.state) {
@@ -37,12 +37,10 @@ export class ResetPassword {
     }
   }
 
-  // Get full OTP as string
   getFullOtp(): string {
     return `${this.otp1}${this.otp2}${this.otp3}${this.otp4}${this.otp5}${this.otp6}`;
   }
 
-  // Auto-move to next box when typing
   onOtpInput(index: number, event: any): void {
     const value = event.target.value;
     
@@ -54,7 +52,6 @@ export class ResetPassword {
     }
   }
 
-  // Handle backspace to move to previous box
   onOtpKeydown(index: number, event: any): void {
     const currentValue = event.target.value;
     

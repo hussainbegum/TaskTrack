@@ -62,12 +62,14 @@ export class LoginComponent {
       next: (response) => {
         this.loading = false;
         console.log('Login successful, role:', response.role);
-        
       },
       error: (error) => {
-        this.loading = false;
         this.errorMessage = error.message || 'Login failed. Please try again.';
         this.toastr.error(this.errorMessage, 'Login Failed');
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
       }
     });
   }
