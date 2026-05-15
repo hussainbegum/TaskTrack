@@ -34,15 +34,9 @@ export const routes: Routes = [
           .then(m => m.ResetPassword)
       },
       {
-        path: 'change-password',
-        loadComponent: () =>
-          import('./components/change-password')
-          .then(m => m.ChangePassword)
-      },
-      {
         path: 'update-password',
         loadComponent: () =>
-          import('./components/update-password')
+          import('./components/updatepassword/update-password')
           .then(m => m.UpdatePassword)
       }
 

@@ -123,13 +123,13 @@ public class AuthController {
 
         if (email == null || newPassword == null || newPassword.isBlank()) {
             return ResponseEntity.badRequest()
-                    .body("Email and New Password are required");
+                    .body(Map.of("error", "Email and New Password are required"));
         }
 
         User user = repo.findByEmail(email).orElse(null);
 
         if (user == null) {
-            return ResponseEntity.badRequest().body("User not found");
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -142,7 +142,7 @@ public class AuthController {
                 user.getName() != null ? user.getName() : "User"
         );
 
-        return ResponseEntity.ok("Password updated successfully");
+        return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
     }
     
     @PostMapping("/forgot-password")

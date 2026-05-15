@@ -282,10 +282,19 @@ changePassword(email: string, newPassword: string): Observable<any> {
 }
 
 updatePassword(email: string, newPassword: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/update-password`, { email, newPassword })
-    .pipe(
-      catchError(this.handleError)
-    );
+  return this.http.post(
+    `${this.apiUrl}/update-password`,
+    { email, newPassword }
+  ).pipe(
+    tap(() => {
+      this.toastr.success('Password updated successfully', 'Success');
+      this.logout();
+    }),
+    catchError((err) => {
+      this.toastr.error(err.error?.error || err.message || 'Failed to update password', 'Error');
+      return this.handleError(err);
+    })
+  );
 }
 
 verifyCredentials(credentials: any): Observable<any> {

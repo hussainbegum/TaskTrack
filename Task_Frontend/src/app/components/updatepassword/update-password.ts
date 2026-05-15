@@ -1,29 +1,35 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService } from '../services/auth';
+import { AuthService } from '../../services/auth';
 
 @Component({
-  selector: 'app-change-password',
+  selector: 'app-update-password',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './change-password.html'
+  templateUrl: './update-password.html',
+  styleUrls: ['./update-password.css']
 })
-export class ChangePassword {
+export class UpdatePassword {
   currentPassword = '';
   newPassword = '';
   confirmPassword = '';
   loading = false;
   email = '';
 
-  constructor(private authService: AuthService, public router: Router, private toastr: ToastrService) {
+  constructor(
+    public authService: AuthService, 
+    public router: Router, 
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
+  ) {
     const user = this.authService.getCurrentUser();
     this.email = user?.email || '';
   }
 
-  changePassword() {
+  updatePassword() {
     if (!this.currentPassword) {
       this.toastr.warning('Please enter current password', 'Missing field');
       return;
@@ -42,27 +48,33 @@ export class ChangePassword {
     }
 
     this.loading = true;
+    this.cdr.markForCheck();
 
     // Verify current password
     this.authService.verifyCredentials({ email: this.email, password: this.currentPassword }).subscribe({
       next: () => {
-        // Now change password
-        this.authService.changePassword(this.email, this.newPassword).subscribe({
+        // Now update password
+        this.authService.updatePassword(this.email, this.newPassword).subscribe({
           next: () => {
             this.loading = false;
-            this.toastr.success('Password changed successfully', 'Success');
+            this.cdr.markForCheck();
+            this.toastr.success('Password updated successfully', 'Success');
+            this.authService.logout();
             this.router.navigate(['/auth/login']);
           },
           error: (err) => {
             this.loading = false;
-            this.toastr.error(err.error?.error || err.message || 'Failed to change password', 'Error');
+            this.cdr.markForCheck();
+            this.toastr.error(err.error?.error || err.message || 'Failed to update password', 'Error');
           }
         });
       },
       error: (err) => {
         this.loading = false;
+        this.cdr.markForCheck();
         this.toastr.error('Current password is incorrect', 'Authentication Failed');
       }
     });
   }
 }
+
