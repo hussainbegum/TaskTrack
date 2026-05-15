@@ -160,7 +160,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updatepassword(){
-    this.router.navigate(['/auth/reset-password']);
+    this.router.navigate(['/auth/change-password']);
   }
   openCreateTaskModal(): void {
     this.editingTask = null;

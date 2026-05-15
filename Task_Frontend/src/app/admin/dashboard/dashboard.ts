@@ -6,6 +6,7 @@ import { User } from '../../Model/user';
 import { Task } from '../../Model/task';
 import { AdminService } from '../../services/admin';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -158,7 +159,8 @@ deleteUserDirectly(userId: number, userName: string): void {
     private adminService: AdminService,
     private toastr: ToastrService,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -276,6 +278,10 @@ deleteUserDirectly(userId: number, userName: string): void {
     if (view === 'users') this.loadUsers();
     if (view === 'tasks') this.loadTasks();
     if(view ==='profile') this.loadCurrentAdmin();
+  }
+
+  updatepassword(): void {
+    this.router.navigate(['/auth/change-password']);
   }
 
   getPageTitle(): string {

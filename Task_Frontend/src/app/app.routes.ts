@@ -32,6 +32,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/reset-password/reset-password')
           .then(m => m.ResetPassword)
+      },
+      {
+        path: 'change-password',
+        loadComponent: () =>
+          import('./components/change-password')
+          .then(m => m.ChangePassword)
       }
 
     ]

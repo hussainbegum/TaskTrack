@@ -4,6 +4,8 @@ import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { ToastrService } from 'ngx-toastr';
+import { finalize } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +25,8 @@ export class LoginComponent {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {
     if (this.authService.isLoggedIn()) {
       const role = this.authService.getUserRole();
@@ -40,39 +43,47 @@ export class LoginComponent {
     });
   }
 
-  onSubmit() {
-    if (this.loginForm.invalid) {
-      Object.keys(this.loginForm.controls).forEach(key => {
-        this.loginForm.get(key)?.markAsTouched();
-      });
-      return;
-    }
-
-    this.loading = true;
-    this.errorMessage = '';
-    
-    const credentials = {
-      email: this.loginForm.get('email')?.value,
-      password: this.loginForm.get('password')?.value
-    };
-    
-    console.log('Attempting login for:', credentials.email);
-    
-    this.authService.login(credentials).subscribe({
-      next: (response) => {
-        this.loading = false;
-        console.log('Login successful, role:', response.role);
-      },
-      error: (error) => {
-        this.errorMessage = error.message || 'Login failed. Please try again.';
-        this.toastr.error(this.errorMessage, 'Login Failed');
-        this.loading = false;
-      },
-      complete: () => {
-        this.loading = false;
-      }
+onSubmit() {
+  if (this.loginForm.invalid) {
+    Object.keys(this.loginForm.controls).forEach(key => {
+      this.loginForm.get(key)?.markAsTouched();
     });
+    return;
   }
+
+  this.loading = true;
+  this.errorMessage = '';
+  
+  const credentials = {
+    email: this.loginForm.get('email')?.value,
+    password: this.loginForm.get('password')?.value
+  };
+  
+  this.authService.login(credentials).subscribe({
+    next: (response) => {
+      this.loading = false;
+      this.cdr.detectChanges();
+      console.log('Login successful, role:', response.role);
+    },
+    error: (error) => {
+      console.error('Catching login error:', error);
+      this.errorMessage = error?.message || error?.error?.message || 'Login failed. Please try again.';
+      
+      try {
+        this.toastr.error(this.errorMessage, 'Login Failed');
+      } catch (toastrError) {
+        console.error('Toastr failed to display:', toastrError);
+      }
+      this.loading = false;
+      this.cdr.detectChanges();
+    },
+    complete: () => {
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
+
   onForgotPassword(){
     this.router.navigate(['/auth/forgot-password'])
   }
