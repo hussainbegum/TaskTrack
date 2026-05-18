@@ -1,55 +1,49 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth';
-import { User } from '../../Model/user';
-import { Task, TaskCreate } from '../../Model/task';
-import { Subscription } from 'rxjs';
 import { TaskService } from '../../services/task';
 import { ToastrService } from 'ngx-toastr';
+import { User } from '../../Model/user';
+import { Task } from '../../Model/task';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
   tasks: Task[] = [];
   filteredTasks: Task[] = [];
-  private userSubscription?: Subscription;
+  
   isMini = false;
-  
-  totalTasks = 0;
-  completedTasks = 0;
-  pendingTasks = 0;
-  inProgressTasks = 0;
-  completionRate = 0;
-
-  showNotifications = false;
-  notifications: any[] = [];
-  notificationsCount = 0;
-  
   currentView = 'dashboard';
   showUserMenu = false;
-  showTaskModal = false;
-  editingTask: Task | null = null;
   
+  // Loading & State tracking (Mirrors your Admin Component structure)
+  tasksLoaded = false;
+  isSaving = false;
+
+  // Dashboard Statistics
+  totalTasks: number | null = null;
+  completedTasks: number | null = null;
+  pendingTasks: number | null = null;
+  inProgressTasks: number | null = null;
+  completionRate: number | null = null;
+
+  // Notification States
+  showNotifications = false;
+  notifications: any[] = [];
+  notificationsCount  = 0;
+  
+  // Filter States
   filterStatus = 'all';
   searchTerm = '';
-  
-  taskForm: TaskCreate = {
-    title: '',
-    description: '',
-    userId: 0,
-    status: 'pending',
-    dueDate: undefined,
-    priority: 'medium'
-  };
-  
+
   menuItems = [
     { path: 'dashboard', name: 'Dashboard', icon: 'dashboard', active: true },
     { path: 'tasks', name: 'My Tasks', icon: 'assignment', active: false },
@@ -61,74 +55,73 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private taskService: TaskService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.userSubscription = this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-      if (!user) {
-        this.router.navigate(['/auth/login']);
-      } else {
-        this.loadTasks();
-      }
-    });
-    
-    this.route.queryParams.subscribe(params => {
-      if (params['view']) {
-        this.setView(params['view']);
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    if (this.userSubscription) {
-      this.userSubscription.unsubscribe();
-    }
+    this.currentUser = this.authService.getCurrentUser();
+    this.loadTasks(); 
+    this.initNotifications();
   }
 
   loadTasks(): void {
+    this.tasksLoaded = false;
+
     this.taskService.getMyTasks().subscribe({
       next: (tasks) => {
         this.tasks = tasks;
-        this.filteredTasks = [...tasks];
+        this.tasksLoaded = true;
         this.updateStatistics();
         this.applyFilters();
+        
+        // Manually trigger local UI component validation inside change detection lifecycle
+        this.cdr.detectChanges();
       },
-      error: (error) => console.error('Error loading tasks:', error)
+      error: (error) => {
+        console.error('Error loading tasks:', error);
+        this.tasksLoaded = true;
+        
+        // Hand off third party toast animations gracefully outside angular tick zone
+        this.ngZone.runOutsideAngular(() => {
+          this.toastr.error('Failed to load tasks.', 'Error');
+        });
+      }
     });
   }
 
-  markAllNotificationsRead(): void {
-    this.notifications.forEach(n => n.read = true);
-    this.notificationsCount = 0;
-    this.showNotifications = false;
+  updateStatistics(): void {
+    if (this.tasksLoaded) {
+      this.totalTasks = this.tasks.length;
+      this.completedTasks = this.tasks.filter(t => t.status === 'completed').length;
+      this.pendingTasks = this.tasks.filter(t => t.status === 'pending').length;
+      this.inProgressTasks = this.tasks.filter(t => t.status === 'in-progress').length;
+      
+      this.completionRate = this.totalTasks > 0 
+        ? Math.round((this.completedTasks / this.totalTasks) * 100) 
+        : 0;
+    }
   }
 
-  updateStatistics(): void {
-    this.totalTasks = this.tasks.length;
-    this.completedTasks = this.tasks.filter(t => t.status === 'completed').length;
-    this.pendingTasks = this.tasks.filter(t => t.status === 'pending').length;
-    this.inProgressTasks = this.tasks.filter(t => t.status === 'in-progress').length;
-    this.completionRate = this.totalTasks > 0 
-      ? Math.round((this.completedTasks / this.totalTasks) * 100) 
-      : 0;
+  // Dynamic template text filters when data is missing or fetching
+  statDisplay(value: number | null): string {
+    return value === null || !this.tasksLoaded ? '—' : value.toString();
+  }
+
+  rateDisplay(value: number | null): string {
+    return value === null || !this.tasksLoaded ? '—' : `${value}%`;
   }
 
   applyFilters(): void {
     this.filteredTasks = this.tasks.filter(task => {
-      let matches = true;
+      const matchesStatus = this.filterStatus === 'all' || task.status === this.filterStatus;
       
-      if (this.filterStatus !== 'all' && task.status !== this.filterStatus) {
-        matches = false;
-      }
+      const matchesSearch = !this.searchTerm || 
+        task.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        task.description.toLowerCase().includes(this.searchTerm.toLowerCase());
       
-      if (this.searchTerm && !task.title.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
-          !task.description.toLowerCase().includes(this.searchTerm.toLowerCase())) {
-        matches = false;
-      }
-      
-      return matches;
+      return matchesStatus && matchesSearch;
     });
   }
 
@@ -138,18 +131,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   setView(view: string): void {
     this.currentView = view;
-    this.menuItems.forEach(item => {
-      item.active = item.path === view;
-    });
+    this.menuItems.forEach(item => item.active = item.path === view);
     
     if (view === 'tasks') {
       this.filterStatus = 'all';
       this.searchTerm = '';
       this.applyFilters();
     }
-    
-    if (view === 'create-task') {
-      this.openCreateTaskModal();
+    if (view === 'dashboard') {
+      this.loadTasks();
     }
     
     this.router.navigate([], {
@@ -159,38 +149,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  updatepassword(){
-    this.router.navigate(['/auth/update-password']);
-  }
-  openCreateTaskModal(): void {
-    this.editingTask = null;
-    this.taskForm = {
-      title: '',
-      description: '',
-      userId: this.currentUser?.id || 0,
-      status: 'pending',
-      dueDate: undefined,
-      priority: 'medium'
-    };
-    this.showTaskModal = true;
-  }
-
   updateTaskStatus(task: Task, status: string): void {
     this.taskService.updateTaskStatus(task.id, status as any).subscribe({
       next: () => {
-        this.loadTasks();
-        this.toastr.success('Task status updated to ' + this.getStatusText(status));
+        // Safe asynchronous UI synchronization running back inside NgZone
+        this.ngZone.run(() => {
+          this.loadTasks(); 
+          this.addNotification(`Task "${task.title}" status updated to ${this.getStatusText(status)}`);
+        });
+
+        this.ngZone.runOutsideAngular(() => {
+          this.toastr.success(`Task status updated to ${this.getStatusText(status)}`, 'Status Updated');
+        });
       },
-      error: (error) => console.error('Error updating task status:', error)
+      error: (error) => {
+        console.error('Error updating task status:', error);
+        this.ngZone.runOutsideAngular(() => {
+          this.toastr.error('Failed to update status.', 'Error');
+        });
+      }
     });
   }
-  
-  closeTaskModal(): void {
-    this.showTaskModal = false;
-    this.editingTask = null;
-    if (this.currentView === 'create-task') {
-      this.setView('tasks');
-    }
+
+  private initNotifications(): void {
+    this.notifications = [{
+      id: '1',
+      message: 'Welcome to your Dashboard',
+      icon: 'info',
+      timeAgo: 'Just now',
+      read: false
+    }];
+    this.notificationsCount = 1;
+  }
+
+  private addNotification(message: string): void {
+    this.notifications.unshift({
+      id: `notif-${Date.now()}`,
+      message,
+      icon: 'info',
+      timeAgo: 'Just now',
+      read: false
+    });
+    this.notificationsCount = this.notifications.filter(n => !n.read).length;
+  }
+
+  markAllNotificationsRead(): void {
+    this.notifications.forEach(n => n.read = true);
+    this.notificationsCount = 0;
+    this.showNotifications = false;
+  }
+
+  updatepassword(): void {
+    this.router.navigate(['/auth/update-password']);
   }
 
   logout(): void {
@@ -229,9 +239,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getPageSubtitle(): string {
     switch(this.currentView) {
-      case 'dashboard': return 'Welcome back! Here\'s an overview of your tasks';
-      case 'tasks': return 'Manage and organize your tasks';
-      case 'create-task': return 'Add a new task to your list';
+      case 'dashboard': return "Welcome back! Here's an overview of your assigned tasks";
+      case 'tasks': return 'Track and update your task progression';
       case 'profile': return 'Manage your account settings';
       default: return '';
     }
