@@ -2,6 +2,7 @@ package com.tasktracker.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.tasktracker.model.Role;
 import com.tasktracker.model.Task;
 import com.tasktracker.model.User;
 import com.tasktracker.repository.TaskRepository;
@@ -30,11 +32,12 @@ public class AdminService {
 
     // User Management
     public List<User> getAllUsers(){
-        return userRepository.findAll();
+        return userRepository.findByRole(Role.USER);
     }
     
-    public Page getUsers(Pageable pageable) {
-    	return userRepository.findAll( pageable);
+    public Page<User> getUsers(Pageable pageable) {
+        // Return paged list of regular users (exclude admins)
+        return userRepository.findByRole(Role.USER, pageable);
     }
 
     public User createUser(User user) {
@@ -46,6 +49,7 @@ public class AdminService {
         // Encode the password
         String rawPassword = user.getPassword();
         nuser.setPassword(passwordEncoder.encode(rawPassword));
+        
         
         User savedUser = userRepository.save(nuser);
         

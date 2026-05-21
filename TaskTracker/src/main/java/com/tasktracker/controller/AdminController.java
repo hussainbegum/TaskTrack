@@ -3,6 +3,7 @@ package com.tasktracker.controller;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,9 +44,18 @@ public class AdminController {
     }
 
     @PostMapping("/users")
-    public User createUser(@RequestBody User user) {
+    public ResponseEntity<?> createUser(@RequestBody User user) {
         System.out.println("Creating user: " + user.getEmail());
-        return adminService.createUser(user);
+        try {
+            User created = adminService.createUser(user);
+            // Hide password in response
+            created.setPassword(null);
+            return ResponseEntity.ok(created);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Internal server error"));
+        }
     }
 
     @PutMapping("/users/{id}")

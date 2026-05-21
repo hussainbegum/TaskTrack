@@ -277,7 +277,7 @@
 .avatar {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, rgba(4, 56, 115, 1), rgba(6, 82, 167, 1));
+  background: radial-gradient(135deg, rgba(4, 56, 115, 1), rgba(6, 82, 167, 1));
   border-radius: 50%;
   display: flex;
   align-items: center;

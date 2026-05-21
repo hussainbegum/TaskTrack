@@ -53,9 +53,6 @@
         <p class="page-subtitle">{{ getPageSubtitle() }}</p>
       </div>
       <div class="header-right">
-        <button class="icon-btn">
-          <i class="material-icons">search</i>
-        </button>
         <div class="notifications">
           <button class="icon-btn" (click)="toggleNotifications()">
             <i class="material-icons">notifications</i>
@@ -172,7 +169,7 @@
               <button class="view-all" (click)="setView('users')">View All <i class="material-icons">arrow_forward</i></button>
             </div>
             <div class="users-list">
-              <div *ngFor="let user of users.slice(0, 4)" class="user-item">
+              <div *ngFor="let user of regularUsers.slice(0, 4)" class="user-item">
                 <div class="user-avatar-sm" [style.background]="getUserAvatarColor(user)">
                   {{ user.name.charAt(0) || 'U' }}
                 </div>
@@ -276,7 +273,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let user of users">
+              <tr *ngFor="let user of regularUsers">
                 <td>
                   <div class="user-cell">
                     <div class="user-avatar-sm" [style.background]="getUserAvatarColor(user)">
@@ -386,7 +383,7 @@
               <label>Assigned To</label>
               <select [(ngModel)]="taskFilterUser" (change)="filterTasks()">
                 <option value="all">All Users</option>
-                <option *ngFor="let user of users" [value]="user.id">{{ user.name }}</option>
+                <option *ngFor="let user of regularUsers" [value]="user.id">{{ user.name }}</option>
               </select>
             </div>
           </div>
@@ -543,8 +540,7 @@
               {{currentAdmin?.role}}
             </div>
           </div>
-
-          <button class="btn-primary" (click)="updatepassword()">Change password</button>
+          <button class="changepass changepass-colors" (click)="updatepassword()">Change Password</button>
 
         </div>
       </div>

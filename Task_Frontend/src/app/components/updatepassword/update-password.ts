@@ -50,10 +50,8 @@ export class UpdatePassword {
     this.loading = true;
     this.cdr.markForCheck();
 
-    // Verify current password
     this.authService.verifyCredentials({ email: this.email, password: this.currentPassword }).subscribe({
       next: () => {
-        // Now update password
         this.authService.updatePassword(this.email, this.newPassword).subscribe({
           next: () => {
             this.loading = false;

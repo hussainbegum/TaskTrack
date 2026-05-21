@@ -23,24 +23,20 @@ export class DashboardComponent implements OnInit {
   isMini = false;
   currentView = 'dashboard';
   showUserMenu = false;
-  
-  // Loading & State tracking (Mirrors your Admin Component structure)
+
   tasksLoaded = false;
   isSaving = false;
 
-  // Dashboard Statistics
   totalTasks: number | null = null;
   completedTasks: number | null = null;
   pendingTasks: number | null = null;
   inProgressTasks: number | null = null;
   completionRate: number | null = null;
 
-  // Notification States
   showNotifications = false;
   notifications: any[] = [];
   notificationsCount  = 0;
-  
-  // Filter States
+
   filterStatus = 'all';
   searchTerm = '';
 
