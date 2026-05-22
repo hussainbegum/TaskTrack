@@ -836,7 +836,6 @@
 .tasks-table-container {
   background: white;
   border-radius: 20px;
-  overflow-x: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 

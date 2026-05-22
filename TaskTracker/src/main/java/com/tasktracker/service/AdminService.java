@@ -247,7 +247,6 @@ public class AdminService {
         taskRepository.deleteById(id);
     }
     
-    // Add this method for updating just the task status
     public Task updateTaskStatus(Long taskId, String status) {
         Task task = taskRepository.findById(taskId).orElse(null);
         if (task != null) {
@@ -256,7 +255,6 @@ public class AdminService {
             task.setUpdatedAt(new Date());
             Task updatedTask = taskRepository.save(task);
             
-            // Send email if task is marked as completed
             if (!"completed".equals(previousStatus) && "completed".equals(status)) {
                 try {
                     User assignedUser = userRepository.findById(task.getUserId()).orElse(null);

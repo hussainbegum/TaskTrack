@@ -591,7 +591,6 @@ html.dark-mode body{
 .tasks-table-container {
   background: white;
   border-radius: 20px 20px 0px 0px;
-  overflow-x: auto;
   box-shadow: 0 1px 3px rgba(0,0,0,.05);
 }
 
@@ -622,7 +621,9 @@ html.dark-mode body{
 }
 
 .users-table tr:hover,
-.tasks-table tr:hover { background: #f8fafc; }
+.tasks-table tr:hover {
+   background: #f8fafc;
+   }
 
 .user-cell { display: flex; align-items: center; gap: 12px; }
 .progress-cell { display: flex; align-items: center; gap: 12px; }
