@@ -33,6 +33,11 @@ export const routes: Routes = [
           import('./components/reset-password/reset-password')
           .then(m => m.ResetPassword)
       },
+      {path: 'update-profile',
+        loadComponent: () =>
+          import('./user/updateprofile/updateprofile')
+          .then(m => m.Updateprofile)
+      },
       {
         path: 'update-password',
         loadComponent: () =>

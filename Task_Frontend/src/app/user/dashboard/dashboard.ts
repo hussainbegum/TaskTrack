@@ -73,7 +73,7 @@ export class DashboardComponent implements OnInit {
         this.applyFilters();
         
         // Manually trigger local UI component validation inside change detection lifecycle
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error loading tasks:', error);
@@ -194,9 +194,12 @@ export class DashboardComponent implements OnInit {
     this.notificationsCount = 0;
     this.showNotifications = false;
   }
-
   updatepassword(): void {
     this.router.navigate(['/auth/update-password']);
+  }
+  
+  updateprofile(): void {
+    this.router.navigate(['/auth/update-profile']);
   }
 
   logout(): void {

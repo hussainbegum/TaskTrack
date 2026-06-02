@@ -32,6 +32,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/auth/updateuserprofile").authenticated()
                     .requestMatchers("/admin/**").hasRole("ADMIN") // Only ADMIN can access
                     .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN") // Both roles can access
                     .anyRequest().authenticated()

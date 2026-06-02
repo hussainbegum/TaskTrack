@@ -3,8 +3,6 @@ package com.tasktracker.controller;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,8 +35,7 @@ public class AdminController {
         return adminService.getAllUsers();
     }
 
-    @SuppressWarnings("unchecked")
-	@GetMapping("/userspage")
+    @GetMapping("/userspage")
     public Page<User> getUserspage(Pageable pageable) {
         return adminService.getUsers(pageable);
     }

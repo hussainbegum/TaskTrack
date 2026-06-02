@@ -62,7 +62,7 @@ onSubmit() {
   this.authService.login(credentials).subscribe({
     next: (response) => {
       this.loading = false;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
       console.log('Login successful, role:', response.role);
     },
     error: (error) => {
@@ -75,11 +75,11 @@ onSubmit() {
         console.error('Toastr failed to display:', toastrError);
       }
       this.loading = false;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     },
     complete: () => {
       this.loading = false;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }
   });
 }

@@ -1,8 +1,10 @@
 package com.tasktracker.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -55,9 +57,6 @@ public class TaskController {
 		task.setId(id);
 		return taskService.updateTask(task);
 	}
-	
-	
-	
 	
 	@PatchMapping("/{id}/status")
 	public Task updateTaskStatus(@PathVariable Long id, @RequestBody Task task) {

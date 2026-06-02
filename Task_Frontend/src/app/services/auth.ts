@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse,HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { User, UserLogin, AuthResponse } from '../Model/user';
@@ -280,7 +280,51 @@ changePassword(email: string, newPassword: string): Observable<any> {
       catchError(this.handleError)
     );
 }
+updateProfile(name: string, email: string): Observable<any> {
+    const token = this.getToken();
+    
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
 
+    // FIXED: Changed endpoint to match your Spring Controller mapping precisely
+    return this.http.post(`${this.apiUrl}/updateuserprofile`, { name, email }, { headers })
+      .pipe(
+        tap((res: any) => {
+          if (typeof window !== 'undefined' && res) {
+            // Read current user state to pull the active role
+            const currentStoredUser = localStorage.getItem(this.USER_KEY);
+            let activeRole = '';
+            
+            if (currentStoredUser) {
+              try {
+                activeRole = JSON.parse(currentStoredUser).role || '';
+              } catch (e) {
+                activeRole = localStorage.getItem(this.ROLE_KEY) || '';
+              }
+            }
+
+            const user: User = {
+              id: 0,
+              name: res.name || name,
+              email: res.email || email,
+              role: res.role || activeRole // Explicitly retain your role structure
+            };
+            
+            // Sync internal service state smoothly
+            this.updateCurrentUserState(user);
+          }
+        }),
+        catchError(this.handleError)
+      );
+  }
+  updateCurrentUserState(updatedUser: User): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser));
+      this.currentUserSubject.next(updatedUser);
+    }
+  }
 updatePassword(email: string, newPassword: string): Observable<any> {
   return this.http.post(
     `${this.apiUrl}/update-password`,

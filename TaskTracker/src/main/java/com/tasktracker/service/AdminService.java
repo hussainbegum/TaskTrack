@@ -2,8 +2,6 @@ package com.tasktracker.service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,17 +39,17 @@ public class AdminService {
     }
 
     public User createUser(User user) {
-        User nuser = new User();
-        nuser.setName(user.getName());
-        nuser.setEmail(user.getEmail());
-        nuser.setRole(user.getRole());
+        User newuser = new User();
+        newuser.setName(user.getName());
+        newuser.setEmail(user.getEmail());
+        newuser.setRole(user.getRole());
         
         // Encode the password
         String rawPassword = user.getPassword();
-        nuser.setPassword(passwordEncoder.encode(rawPassword));
+        newuser.setPassword(passwordEncoder.encode(rawPassword));
         
         
-        User savedUser = userRepository.save(nuser);
+        User savedUser = userRepository.save(newuser);
         
         // Send email with credentials
         emailService.sendUserCredentials(

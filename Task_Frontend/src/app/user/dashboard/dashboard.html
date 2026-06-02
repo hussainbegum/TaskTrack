@@ -221,7 +221,7 @@
                   <th>Priority</th>
                   <th>Due Date</th>
                   <th>Created</th>
-                  <th>Actions</th>
+                  <!-- <th>Actions</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -246,13 +246,13 @@
                 </td>
                 <td>{{ task.dueDate ? (task.dueDate | date:'MMM d, yyyy') : 'Not set' }}</td>
                 <td>{{ task.createdAt | date:'MMM d, yyyy' }}</td>
-                <td>
+                <!-- <td>
                   <div class="action-buttons">
                     <button class="icon-btn-sm" (click)="updateTaskStatus(task, task.status === 'pending' ? 'in-progress' : 'pending')" title="Quick Status Change">
                       <i class="material-icons">sync</i>
                     </button>
                   </div>
-                </td>
+                </td> -->
               </tr>
               <tr *ngIf="filteredTasks.length === 0">
                 <td colspan="6" class="empty-table">
@@ -289,28 +289,6 @@
           </div>
           <hr class="border-secondary opacity-25">
 
-          <!-- Phone -->
-          <div class="row align-items-center" id="profile-info">
-            <div class="col-sm-3">
-              <h6 class="mb-0">Phone</h6>
-            </div>
-            <div class="col-sm-9" id="detail">
-              9876543210
-            </div>
-          </div>
-          <hr class="border-secondary opacity-25">
-
-          <!-- Mobile -->
-          <div class="row align-items-center" id="profile-info">
-            <div class="col-sm-3">
-              <h6 class="mb-0">Mobile</h6>
-            </div>
-            <div class="col-sm-9" id="detail">
-              0987654312
-            </div>
-          </div>
-          <hr class="border-secondary opacity-25">
-
           <!-- Address -->
           <div class="row align-items-center" id="profile-info">
             <div class="col-sm-3">
@@ -322,7 +300,7 @@
           </div>
 
           <button class="btn-primary" (click)="updatepassword()">Change password</button>
-
+          <button class="btn-primary" (click)="updateprofile()">Update profile</button>
         </div>
       </div>
     </div>

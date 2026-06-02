@@ -5,178 +5,166 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tasktracker.model.User;
-import com.tasktracker.repository.UserRepository;
 import com.tasktracker.security.JwtUtil;
-import com.tasktracker.service.EmailService;
+import com.tasktracker.service.AuthService;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins="http://localhost:4200")
-
-
+@CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
 
     @Autowired
-    private UserRepository repo;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private AuthService authService;
 
     @Autowired
     private JwtUtil jwtUtil;
-    
-    
-    @Autowired
-    private EmailService emailService;
-    
-    private Map<String, String> otpStorage = new HashMap<>();
-    
 
-//    // Signup
-//    @PostMapping("/signup")
-//    public ResponseEntity<?> signup(@RequestBody User user) {
-//    	
-//        if (repo.findByEmail(user.getEmail()).isPresent()) {
-//            return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
-//        }
-//        
-//        String encodedPassword = passwordEncoder.encode(user.getPassword());
-//        user.setPassword(encodedPassword);
-//        
-//        // Default role is USER if not specified
-//        if (user.getRole() == null) {
-//            user.setRole(com.tasktracker.model.Role.USER);
-//        }
-//
-//        User savedUser = repo.save(user);
-//        
-//        // Remove password from response
-//        savedUser.setPassword(null);
-//        return ResponseEntity.ok(savedUser);
-//    }
+    // Signup
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@RequestBody User user) {
+        try {
+            User savedUser = authService.signup(user);
+            return ResponseEntity.ok(savedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 
-    // Login - Return token and role
+    // Login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
-        User dbUser = repo.findByEmail(user.getEmail()).orElse(null);
+        Map<String, Object> loginResponse = authService.login(user.getEmail(), user.getPassword());
 
-        if (dbUser != null && passwordEncoder.matches(user.getPassword(), dbUser.getPassword())) {
-            String token = jwtUtil.generateToken(user.getEmail(), dbUser.getRole().toString());
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", token);
-            response.put("role", dbUser.getRole().toString());
-            response.put("username", dbUser.getName());
-            response.put("email", dbUser.getEmail());
-            
-            return ResponseEntity.ok(response);
+        if (loginResponse != null) {
+            return ResponseEntity.ok(loginResponse);
         }
-
         return ResponseEntity.status(401).body(Map.of("error", "Invalid Credentials"));
     }
-    
-    
+
+    // Change Password
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody Map<String, String> request) {
-
         String email = request.get("email");
         String newPassword = request.get("newPassword");
 
         if (email == null || newPassword == null || newPassword.isBlank()) {
-            return ResponseEntity.badRequest()
-                    .body("Email and New Password are required");
+            return ResponseEntity.badRequest().body("Email and New Password are required");
         }
 
-        User user = repo.findByEmail(email).orElse(null);
-
-        if (user == null) {
-            return ResponseEntity.badRequest().body("User not found");
+        try {
+            authService.updatePassword(email, newPassword);
+            return ResponseEntity.ok("Password changed successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-        user.setFirstLogin(false);
-
-        repo.save(user);
-
-        // SEND EMAIL HERE
-        emailService.sendPasswordChangeMail(
-        	    user.getEmail(),
-        	    user.getName() != null ? user.getName() : "User"
-        	);
-
-        return ResponseEntity.ok("Password changed successfully");
     }
 
+    // Update Password
     @PostMapping("/update-password")
     public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> request) {
-
         String email = request.get("email");
         String newPassword = request.get("newPassword");
 
         if (email == null || newPassword == null || newPassword.isBlank()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Email and New Password are required"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Email and New Password are required"));
         }
 
-        User user = repo.findByEmail(email).orElse(null);
+        try {
+            authService.updatePassword(email, newPassword);
+            return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 
-        if (user == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+    // Update Profile
+    @PostMapping("/update-profile")
+    public ResponseEntity<?> updateProfile(@RequestHeader(value = "Authorization", required = false) String authHeader,
+                                           @RequestBody Map<String, String> request) {
+        String newName = request.get("name");
+        String newEmail = request.get("email");
+
+        if ((newName == null || newName.isBlank()) && (newEmail == null || newEmail.isBlank())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Name or Email are required"));
         }
 
-        user.setPassword(passwordEncoder.encode(newPassword));
-        user.setFirstLogin(false);
+        String currentEmail = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            if (jwtUtil.validateToken(token)) {
+                currentEmail = jwtUtil.extractUsername(token);
+            }
+        }
 
-        repo.save(user);
+        if (currentEmail == null) {
+            currentEmail = request.get("currentEmail");
+            if (currentEmail == null) {
+                currentEmail = request.get("email");
+            }
+        }
 
-        emailService.sendPasswordChangeMail(
-                user.getEmail(),
-                user.getName() != null ? user.getName() : "User"
-        );
+        if (currentEmail == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Could not determine user to update"));
+        }
 
-        return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+        try {
+            Map<String, Object> updatedProfile = authService.updateProfile(currentEmail, newName, newEmail);
+            return ResponseEntity.ok(updatedProfile);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
     
+    @PostMapping("/updateuserprofile")
+    public ResponseEntity<?> updateUserProfile(@RequestHeader(value = "Authorization", required = false) String authHeader,
+                                               @RequestBody Map<String, String> request) {
+        try {
+            User updatedUser = authService.updateUserProfile(authHeader, request);
+            
+            // Build the clean front-end expected success response maps
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("name", updatedUser.getName());
+            resp.put("email", updatedUser.getEmail());
+            resp.put("role", updatedUser.getRole());
+            resp.put("message", "Profile updated successfully");
+            
+            return ResponseEntity.ok(resp);
+            
+        } catch (IllegalArgumentException e) {
+            // Gracefully catch validation rule failures and respond with bad requests
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // Forgot Password
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
-
         String email = request.get("email");
 
-        System.out.println("Received email: " + email);
-
         if (email == null || email.isBlank()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Email is required"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Email is required"));
         }
 
-        User user = repo.findByEmail(email).orElse(null);
-
-        if (user == null) {
-            System.out.println("User not found for email: " + email);
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "User not found"));
+        try {
+            authService.processForgotPassword(email);
+            return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-
-        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
-
-        otpStorage.put(email, otp);
-
-        emailService.sendOtpMail(email, otp);
-
-        return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
     }
     
+
+    // Reset Password
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
-
         String email = request.get("email");
         String otp = request.get("otp");
         String newPassword = request.get("newPassword");
@@ -185,34 +173,13 @@ public class AuthController {
             return ResponseEntity.badRequest().body("All fields are required");
         }
 
-        String storedOtp = otpStorage.get(email);
-
-        if (storedOtp == null || !storedOtp.equals(otp)) {
-            return ResponseEntity.badRequest().body("Invalid OTP");
+        try {
+            authService.resetPassword(email, otp, newPassword);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Password reset successfully");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        User user = repo.findByEmail(email).orElse(null);
-
-        if (user == null) {
-            return ResponseEntity.badRequest().body("User not found");
-        }
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-
-        repo.save(user);
-
-        // Remove OTP after successful use
-        otpStorage.remove(email);
-
-        emailService.sendPasswordChangeMail(
-                user.getEmail(),
-                user.getName() != null ? user.getName() : "User"
-        );
-
-   
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Password reset successfully");
-        return ResponseEntity.ok(response);
     }
-    
 }
