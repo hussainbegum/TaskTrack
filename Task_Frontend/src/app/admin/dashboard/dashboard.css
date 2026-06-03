@@ -586,11 +586,9 @@ html.dark-mode body{
 .btn-secondary:hover:not(:disabled) { background: #cbd5e1; }
 .btn-secondary:disabled { opacity: .6; cursor: not-allowed; }
 
-/* Tables */
 .users-table-container,
 .tasks-table-container {
   background: white;
-  border-radius: 20px 20px 0px 0px;
   box-shadow: 0 1px 3px rgba(0,0,0,.05);
 }
 
@@ -602,13 +600,15 @@ html.dark-mode body{
 
 .users-table th,
 .tasks-table th {
+  table-layout: fixed;
   text-align: left;
   padding: 1rem 1.5rem;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .5px;
-  color: #5a6e8a;
+  color: #ffffff;
+  background-color: #032a51;
   border-bottom: 1px solid #e2e8f0;
 }
 
@@ -926,7 +926,6 @@ html.dark-mode body{
   padding: 1.25rem 1.75rem;
   background: white;
   border-top: 2px solid #f0f4f8;
-  border-radius: 0 0 20px 20px;
   margin-top: -1px;
   box-shadow: 0 4px 12px rgba(0,0,0,.04);
 }

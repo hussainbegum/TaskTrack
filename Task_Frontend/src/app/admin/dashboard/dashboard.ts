@@ -82,6 +82,7 @@ export class AdminDashboardComponent implements OnInit {
     name: '',
     email: '',
     password: '',
+    taskcount: 0,
     role: 'USER' as 'USER' | 'ADMIN'
   };
 
@@ -198,6 +199,10 @@ deleteUserDirectly(userId: number, userName: string): void {
     });
   }
 
+  getUserTaskCount(userId: number): number {
+    if (!this.tasksLoaded) return 0;
+    return this.tasks.filter(task => task.userId === userId).length;
+  }
   private loadTasks(): void {
     this.adminService.getAllTasks().subscribe({
       next: (tasks) => {
@@ -328,7 +333,7 @@ deleteUserDirectly(userId: number, userName: string): void {
     this.showUserModal = false;
     this.editingUser = null;
     this.isSaving = false;
-    this.userForm = { name: '', email: '', password: '', role: 'USER' };
+    this.userForm = { name: '', email: '', password: '', taskcount: 0, role: 'USER' };
   }
 
   closeTaskModal(): void {
@@ -347,7 +352,7 @@ deleteUserDirectly(userId: number, userName: string): void {
 
   openCreateUserModal(): void {
     this.editingUser = null;
-    this.userForm = { name: '', email: '', password: '', role: 'USER' };
+    this.userForm = { name: '', email: '', password: '', taskcount: 0, role: 'USER' };
     this.showUserModal = true;
   }
 
@@ -357,6 +362,7 @@ deleteUserDirectly(userId: number, userName: string): void {
       name: user.name,
       email: user.email,
       password: '',
+      taskcount: user.taskCount || 0,
       role: user.role || 'USER'
     };
     this.showUserModal = true;

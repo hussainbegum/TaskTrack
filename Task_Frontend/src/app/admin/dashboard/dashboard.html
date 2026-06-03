@@ -268,7 +268,7 @@
                 <th>Email</th>
                 <th>Tasks Assigned</th>
                 <th>Completed</th>
-                <th>Join Date</th>
+                <th>Role</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -283,7 +283,7 @@
                   </div>
                 </td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.taskCount || 0 }}</td>
+                <td>{{ getUserTaskCount(user.id) }}</td>
                 <td>
                   <div class="progress-cell">
                     <div class="mini-progress">
@@ -292,7 +292,7 @@
                     <span>{{ getUserCompletionRate(user) }}%</span>
                   </div>
                 </td>
-                <td>{{ user.createdAt | date:'MMM d, yyyy' }}</td>
+                <td>{{user.role}}</td>
                 <td>
                   <div class="action-buttons">
                     <button class="icon-btn-sm" (click)="assignTaskToUser(user)" title="Assign Task">
