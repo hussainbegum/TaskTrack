@@ -15,12 +15,10 @@ import { ChangeDetectorRef } from '@angular/core';
   imports: [CommonModule, ReactiveFormsModule, RouterModule]
 })
 export class LoginComponent {
-  login() {
-    throw new Error('Method not implemented.');
-  }
   loginForm: FormGroup;
   loading = false;
   errorMessage = '';
+  isInvalid: boolean = false;
 
   constructor(
     private router: Router,
@@ -43,48 +41,60 @@ export class LoginComponent {
     });
   }
 
-onSubmit() {
-  if (this.loginForm.invalid) {
-    Object.keys(this.loginForm.controls).forEach(key => {
-      this.loginForm.get(key)?.markAsTouched();
-    });
-    return;
+  onSubmit() {
+    if (this.loginForm.invalid) {
+      Object.keys(this.loginForm.controls).forEach(key => {
+        this.loginForm.get(key)?.markAsTouched();
+      });
+      this.triggerShake();
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+    
+    const credentials = {
+      email: this.loginForm.get('email')?.value,
+      password: this.loginForm.get('password')?.value
+    };
+    
+    this.authService.login(credentials)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('Login successful, role:', response.role);
+        },
+        error: (error) => {
+          console.error('Catching login error:', error);
+          this.errorMessage = error?.message || error?.error?.message || 'Login failed. Please try again.';
+          
+          try {
+            this.toastr.error(this.errorMessage, 'Login Failed');
+          } catch (toastrError) {
+            console.error('Toastr failed to display:', toastrError);
+          }
+          
+          this.triggerShake();
+        }
+      });
   }
 
-  this.loading = true;
-  this.errorMessage = '';
-  
-  const credentials = {
-    email: this.loginForm.get('email')?.value,
-    password: this.loginForm.get('password')?.value
-  };
-  
-  this.authService.login(credentials).subscribe({
-    next: (response) => {
-      this.loading = false;
-      this.cdr.markForCheck();
-      console.log('Login successful, role:', response.role);
-    },
-    error: (error) => {
-      console.error('Catching login error:', error);
-      this.errorMessage = error?.message || error?.error?.message || 'Login failed. Please try again.';
-      
-      try {
-        this.toastr.error(this.errorMessage, 'Login Failed');
-      } catch (toastrError) {
-        console.error('Toastr failed to display:', toastrError);
-      }
-      this.loading = false;
-      this.cdr.markForCheck();
-    },
-    complete: () => {
-      this.loading = false;
-      this.cdr.markForCheck();
-    }
-  });
-}
+  triggerShake() {
+    this.isInvalid = true;
+    this.cdr.markForCheck(); 
+
+    setTimeout(() => {
+      this.isInvalid = false;
+      this.cdr.markForCheck(); 
+    }, 400);
+  }
 
   onForgotPassword(){
-    this.router.navigate(['/auth/forgot-password'])
+    this.router.navigate(['/auth/forgot-password']);
   }
 }

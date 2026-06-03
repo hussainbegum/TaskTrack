@@ -9,7 +9,6 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Glassmorphism Card */
 .glass-card {
     background: rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(12px);

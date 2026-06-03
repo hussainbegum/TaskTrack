@@ -48,7 +48,6 @@ export class Updateprofile {
             userObj.name = response.name;
             userObj.email = response.email;
             
-            // FIX: Use the public service method we added to broadcast the state change safely
             this.authService.updateCurrentUserState(userObj);
           }
         }

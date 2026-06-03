@@ -684,7 +684,7 @@ closeDeletePopup(): void {
       'linear-gradient(135deg, #f59e0b, #d97706)',
       'linear-gradient(135deg, #ef4444, #dc2626)'
     ];
-    return colors[user.id % colors.length];
+    return colors[user.id % 2*colors.length];
   }
 
   getUserCompletionRate(user: User): number {
